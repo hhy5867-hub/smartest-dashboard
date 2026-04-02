@@ -1252,6 +1252,55 @@
 
       resetSiteOptions();
       renderAll();
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://coylnollejkngrnreijt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XDxYpO-G0UXjdyyknjgCoA_siyjCHlP";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 기존 데이터 초기화 (샘플 대신 Supabase 사용)
+let studyData = [];
+
+// Supabase에서 기관 데이터 불러오기
+async function loadSitesFromSupabase() {
+  const { data, error } = await supabase
+    .from('study_sites')
+    .select('*')
+    .order('display_order', { ascending: true });
+
+  if (error) {
+    console.error("Supabase 오류:", error);
+    return;
+  }
+
+  // Supabase 데이터를 기존 구조에 맞게 변환
+  studyData = data.map(item => ({
+    site: item.site_name,
+    pi: "",
+    target: item.target_enrollment || 0,
+    screened: 0,
+    consented: 0,
+    enrolled: 0,
+    active: 0,
+    completed: 0,
+    dropped: 0,
+    pendingQuery: 0,
+    siteStatus: "active",
+    siteStatusLabel: "등록 진행",
+    lastUpdatedRaw: null,
+    lastUpdatedDisplay: "-"
+  }));
+
+  console.log("Supabase 데이터:", studyData);
+
+  resetSiteOptions();
+  renderAll();
+}
+
+// 페이지 로드 시 실행
+loadSitesFromSupabase();
+</script>
   </body>
 </html>
