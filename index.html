@@ -25,27 +25,15 @@
         --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.07);
 
         --status-active: #003876;
-        --status-active-soft: #eef4fb;
-        --status-active-line: #d4e2f3;
-
         --status-hold: #9a8f7a;
-        --status-hold-soft: #f6f3ee;
-        --status-hold-line: #e7ddd0;
-
         --status-closed: #b0b8c2;
-        --status-closed-soft: #f7f8fa;
-        --status-closed-line: #e7eaee;
-
         --status-default: #64748b;
-        --status-default-soft: #f8fafc;
-        --status-default-line: #e2e8f0;
       }
 
       body {
         margin: 0;
         font-family: Arial, "Noto Sans KR", sans-serif;
-        background:
-          linear-gradient(180deg, #eef3f9 0%, #f7f9fc 180px, var(--brand-bg) 100%);
+        background: linear-gradient(180deg, #eef3f9 0%, #f7f9fc 180px, var(--brand-bg) 100%);
         color: var(--text-main);
       }
 
@@ -119,16 +107,6 @@
         border-radius: 999px;
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.01em;
-      }
-
-      .badge::before {
-        content: "";
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #ffffff;
-        opacity: 0.9;
       }
 
       .org-tag {
@@ -143,24 +121,15 @@
         font-weight: 700;
       }
 
-      .title-block {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
       .title-main {
         margin: 0;
         font-size: 28px;
         line-height: 1.2;
         font-weight: 800;
         color: var(--brand-navy-dark);
-        letter-spacing: -0.01em;
       }
 
-      .title-main .est {
-        color: var(--brand-accent);
-      }
+      .title-main .est { color: var(--brand-accent); }
 
       .title-fullterm {
         font-size: 14px;
@@ -172,13 +141,6 @@
       .title-fullterm .accent {
         color: var(--brand-accent);
         font-weight: 800;
-      }
-
-      .top-actions-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 10px;
       }
 
       .top-actions {
@@ -196,20 +158,12 @@
         font-size: 13px;
         font-weight: 700;
         cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0, 56, 118, 0.12);
-        transition: transform 0.15s ease, opacity 0.15s ease;
       }
 
       .btn.secondary {
         background: #ffffff;
         color: var(--brand-navy);
         border: 1px solid #c9d8ea;
-        box-shadow: none;
-      }
-
-      .btn:hover {
-        opacity: 0.96;
-        transform: translateY(-1px);
       }
 
       .dropzone {
@@ -219,20 +173,13 @@
         padding: 26px;
         margin-bottom: 24px;
         text-align: center;
-        transition: 0.2s ease;
         box-shadow: var(--shadow-sm);
-      }
-
-      .dropzone.dragover {
-        background: #edf5ff;
-        border-color: var(--brand-navy);
       }
 
       .dropzone-title {
         font-size: 18px;
         font-weight: 800;
         color: var(--brand-navy);
-        letter-spacing: -0.01em;
       }
 
       .dropzone-sub {
@@ -268,8 +215,6 @@
         color: #475569;
       }
 
-      .muted { color: var(--text-muted); }
-
       .grid5 {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -296,7 +241,6 @@
         font-size: 13px;
         color: var(--text-sub);
         font-weight: 700;
-        letter-spacing: 0.01em;
       }
 
       .metric-value {
@@ -304,15 +248,12 @@
         font-weight: 800;
         margin-top: 10px;
         color: var(--brand-navy);
-        line-height: 1.1;
-        letter-spacing: -0.02em;
       }
 
       .metric-sub {
         margin-top: 10px;
         font-size: 13px;
         color: var(--text-muted);
-        line-height: 1.5;
       }
 
       .section-title {
@@ -320,7 +261,6 @@
         font-weight: 800;
         margin-bottom: 16px;
         color: var(--brand-navy-dark);
-        letter-spacing: -0.01em;
       }
 
       .filters {
@@ -340,54 +280,7 @@
         color: var(--text-main);
       }
 
-      input:focus, select:focus {
-        outline: none;
-        border-color: #7fa4cf;
-        box-shadow: 0 0 0 4px rgba(0, 56, 118, 0.08);
-      }
-
-      .progress-box {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .progress {
-        width: 100%;
-        height: 10px;
-        background: #e6edf5;
-        border-radius: 999px;
-        overflow: hidden;
-      }
-
-      .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #003876 0%, #2b6cb0 100%);
-        border-radius: 999px;
-      }
-
-      .progress-bar.inactive {
-        background: linear-gradient(90deg, #a6957c 0%, #c3b39e 100%);
-      }
-
-      .pill {
-        display: inline-block;
-        min-width: 38px;
-        text-align: center;
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: #eef4fb;
-        color: var(--brand-navy);
-        font-weight: 800;
-        font-size: 12px;
-        border: 1px solid #d8e4f2;
-      }
-
-      .pill.zero {
-        background: #f4f7fb;
-        color: #64748b;
-        border-color: #e2e8f0;
-      }
+      .table-wrap { overflow-x: auto; }
 
       table {
         width: 100%;
@@ -407,26 +300,9 @@
         background: var(--table-head);
         color: #475569;
         font-weight: 800;
-        position: sticky;
-        top: 0;
-      }
-
-      td strong {
-        color: var(--brand-navy-dark);
       }
 
       .text-right { text-align: right; }
-      .table-wrap { overflow-x: auto; }
-
-      .table-row-inactive {
-        background: linear-gradient(180deg, #fcfaf7 0%, #f8f5ef 100%);
-      }
-
-      .site-name.inactive,
-      .table-row-inactive td,
-      .table-row-inactive td strong {
-        color: #8a7c67 !important;
-      }
 
       .chart-row {
         display: flex;
@@ -450,10 +326,6 @@
         gap: 8px;
       }
 
-      .bar-label.inactive {
-        color: #8a7c67;
-      }
-
       .bar-track {
         width: 100%;
         height: 18px;
@@ -467,15 +339,6 @@
         min-width: 2px;
         background: linear-gradient(90deg, #003876 0%, #4f86c6 100%);
         border-radius: 999px;
-      }
-
-      .bar-fill.zero {
-        width: 2px !important;
-        background: #cfd8e3;
-      }
-
-      .bar-fill.inactive {
-        background: linear-gradient(90deg, #a6957c 0%, #c9b9a2 100%);
       }
 
       .bar-status-dot {
@@ -589,44 +452,8 @@
         box-shadow: var(--shadow-sm);
       }
 
-      .note strong {
-        display: block;
-        margin-bottom: 10px;
-        color: var(--brand-navy-dark);
-        font-size: 15px;
-      }
-
-      ul {
-        margin: 0;
-        padding-left: 18px;
-      }
-
-      li { margin: 6px 0; }
-
       @media (max-width: 1024px) {
         .grid5, .grid2, .filters { grid-template-columns: 1fr; }
-        .title-main { font-size: 24px; }
-        .title-fullterm { font-size: 13px; }
-        .header-shell { padding: 22px; margin-top: 26px; }
-        .top-actions-wrap {
-          align-items: stretch;
-          width: 100%;
-        }
-        .page-update-badge {
-          right: 24px;
-          top: 0;
-        }
-      }
-
-      @media (max-width: 640px) {
-        .page-update-badge {
-          position: static;
-          margin-left: auto;
-          margin-bottom: 8px;
-        }
-        .header-shell {
-          margin-top: 0;
-        }
       }
     </style>
   </head>
@@ -642,24 +469,20 @@
               <div class="org-tag">Enrollment Dashboard</div>
             </div>
 
-            <div class="title-block">
-              <h1 class="title-main">
-                SMART-<span class="est">EST</span> 연구 등록 현황
-              </h1>
+            <h1 class="title-main">
+              SMART-<span class="est">EST</span> 연구 등록 현황
+            </h1>
 
-              <div class="title-fullterm">
-                <span class="accent">E</span>ndova<span class="accent">S</span>cular Treatment or
-                <span class="accent">T</span>hrombolytic Therapy
-              </div>
+            <div class="title-fullterm">
+              <span class="accent">E</span>ndova<span class="accent">S</span>cular Treatment or
+              <span class="accent">T</span>hrombolytic Therapy
             </div>
           </div>
 
-          <div class="top-actions-wrap">
-            <div class="top-actions">
-              <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
-              <button class="btn secondary" onclick="reloadSupabase()">Supabase 새로고침</button>
-              <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
-            </div>
+          <div class="top-actions">
+            <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
+            <button class="btn secondary" onclick="reloadSupabase()">Supabase 새로고침</button>
+            <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
           </div>
         </div>
       </div>
@@ -668,18 +491,18 @@
         <div class="dropzone-title">엑셀 파일 업로드</div>
         <div class="dropzone-sub">
           .xlsx / .xls / .csv 파일을 드래그하거나 선택하면<br>
-          Supabase 기관 목록 기준으로 기관별 등록 수, 연구 상태, 요약 지표가 반영됩니다.
+          Supabase 기관 목록 기준으로 값을 반영합니다.
         </div>
         <div class="dropzone-row">
           <button class="btn secondary" onclick="document.getElementById('fileInput').click()">파일 선택</button>
           <button class="btn secondary" onclick="loadSampleData()">예시 데이터로 되돌리기</button>
         </div>
         <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none" />
-        <div class="status-box" id="fileStatus">현재: Supabase 데이터 불러오는 중</div>
+        <div class="status-box" id="fileStatus">현재: 초기화 중</div>
 
         <div class="hint-box">
           <div><strong>엑셀 열 이름 추천</strong></div>
-          <div class="muted" style="margin-top:8px; line-height:1.7;">
+          <div style="margin-top:8px; line-height:1.7;">
             기관명 / site / 기관<br>
             등록수 / enrolled / 등록 / total enrolled<br>
             목표수 / target<br>
@@ -758,10 +581,8 @@
       <div class="note">
         <strong>사용 방법</strong>
         <ul>
-          <li>Netlify 또는 Cloudflare Pages에 이 <b>index.html</b> 파일만 올리면 됩니다.</li>
-          <li>페이지 로드 시 Supabase의 <b>study_sites</b> 데이터를 먼저 불러옵니다.</li>
-          <li>엑셀 업로드 시 동일한 기관명 기준으로 등록 수와 상태가 덮어써집니다.</li>
-          <li>엑셀에만 있는 기관명은 새 기관으로 추가됩니다.</li>
+          <li>페이지 로드 시 Supabase의 study_sites 데이터를 먼저 불러옵니다.</li>
+          <li>엑셀 업로드 시 동일 기관명 기준으로 덮어씁니다.</li>
         </ul>
       </div>
     </div>
@@ -771,7 +592,6 @@
 
       const SUPABASE_URL = "https://coylnollejkngrnreijt.supabase.co";
       const SUPABASE_KEY = "sb_publishable_XDxYpO-G0UXjdyyknjgCoA_siyjCHlP";
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       const sampleData = [
         {
@@ -787,8 +607,7 @@
           pendingQuery: 0,
           siteStatus: "active",
           siteStatusLabel: "등록 진행",
-          lastUpdatedRaw: new Date("2026-04-01"),
-          lastUpdatedDisplay: "2026-04-01"
+          lastUpdatedDisplay: "2026-04-02"
         }
       ];
 
@@ -804,24 +623,14 @@
       const donut = document.getElementById("donut");
       const donutTotal = document.getElementById("donutTotal");
       const legend = document.getElementById("legend");
-      const dropzone = document.getElementById("dropzone");
-      const fileInput = document.getElementById("fileInput");
       const fileStatus = document.getElementById("fileStatus");
+      const fileInput = document.getElementById("fileInput");
       const updateBadge = document.getElementById("updateBadge");
 
       function safeNumber(value) {
         if (value === null || value === undefined || value === "") return 0;
-        if (typeof value === "number") return isNaN(value) ? 0 : value;
-        const cleaned = String(value).replace(/,/g, "").trim();
-        const num = Number(cleaned);
+        const num = Number(String(value).replace(/,/g, "").trim());
         return isNaN(num) ? 0 : num;
-      }
-
-      function normalizeKey(key) {
-        return String(key || "")
-          .toLowerCase()
-          .replace(/\s+/g, "")
-          .replace(/[()\[\]{}._-]/g, "");
       }
 
       function normalizeSiteName(value) {
@@ -829,23 +638,10 @@
       }
 
       function normalizeStatusValue(value) {
-        const raw = String(value ?? "").trim().toLowerCase();
-        const compact = raw.replace(/\s+/g, "").replace(/[-_/]/g, "");
-
-        if (!compact) return "unknown";
-
-        if (
-          ["active", "open", "ongoing", "recruiting", "진행", "진행중", "등록중", "등록진행", "모집중", "운영중", "오픈"].includes(compact)
-        ) return "active";
-
-        if (
-          ["hold", "paused", "pause", "onhold", "inactive", "중지", "보류", "등록안함", "등록중지", "등록중단", "모집중지", "일시중지", "비활성"].includes(compact)
-        ) return "hold";
-
-        if (
-          ["closed", "close", "ended", "complete", "completed", "종료", "마감", "등록종료", "모집종료", "종결"].includes(compact)
-        ) return "closed";
-
+        const v = String(value || "").trim().toLowerCase().replace(/\s+/g, "");
+        if (["active","open","ongoing","recruiting","진행","진행중","등록중","등록진행","모집중"].includes(v)) return "active";
+        if (["hold","paused","onhold","중지","보류","등록중단","모집중지"].includes(v)) return "hold";
+        if (["closed","complete","completed","종료","마감","등록종료","모집종료"].includes(v)) return "closed";
         return "unknown";
       }
 
@@ -854,161 +650,6 @@
         if (status === "hold") return "등록 중단";
         if (status === "closed") return "등록 종료";
         return "미지정";
-      }
-
-      function isStoppedStatus(status) {
-        return status === "hold";
-      }
-
-      function findColumn(row, candidates) {
-        const entries = Object.keys(row || {});
-        for (const entry of entries) {
-          const normalized = normalizeKey(entry);
-          if (candidates.includes(normalized)) return entry;
-        }
-        return null;
-      }
-
-      function excelSerialToDate(serial) {
-        const parsed = XLSX.SSF.parse_date_code(serial);
-        if (!parsed) return null;
-        return new Date(parsed.y, parsed.m - 1, parsed.d);
-      }
-
-      function isLikelyExcelDateNumber(value) {
-        return typeof value === "number" && value > 20000 && value < 100000;
-      }
-
-      function formatDateValue(value) {
-        if (value === null || value === undefined || value === "") return "";
-        let dateObj = null;
-
-        if (value instanceof Date && !isNaN(value)) {
-          dateObj = new Date(value.getFullYear(), value.getMonth(), value.getDate());
-        } else if (isLikelyExcelDateNumber(value)) {
-          dateObj = excelSerialToDate(value);
-        } else if (typeof value === "string") {
-          const trimmed = value.trim();
-          if (!trimmed) return "";
-          const numeric = Number(trimmed);
-          if (!isNaN(numeric) && isLikelyExcelDateNumber(numeric)) {
-            dateObj = excelSerialToDate(numeric);
-          } else {
-            const normalized = trimmed.replace(/\./g, "-").replace(/\//g, "-");
-            const parsed = new Date(normalized);
-            if (!isNaN(parsed)) {
-              dateObj = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
-            }
-          }
-        }
-
-        if (!dateObj || isNaN(dateObj)) return String(value).trim();
-
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-        const d = String(dateObj.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
-      }
-
-      function createDefaultSiteRow(siteName = "") {
-        return {
-          site: siteName,
-          pi: "",
-          target: 0,
-          screened: 0,
-          consented: 0,
-          enrolled: 0,
-          active: 0,
-          completed: 0,
-          dropped: 0,
-          pendingQuery: 0,
-          siteStatus: "active",
-          siteStatusLabel: "등록 진행",
-          lastUpdatedRaw: null,
-          lastUpdatedDisplay: "-"
-        };
-      }
-
-      function parseExcelRows(rows) {
-        if (!rows || !rows.length) {
-          throw new Error("엑셀에서 읽을 데이터가 없습니다.");
-        }
-
-        const firstRow = rows.find(row => Object.keys(row).length > 0);
-        if (!firstRow) {
-          throw new Error("엑셀에 비어 있지 않은 행이 없습니다.");
-        }
-
-        const siteCol = findColumn(firstRow, ["기관명","기관","site","sitename","병원","센터","center","hospital"]);
-        const piCol = findColumn(firstRow, ["pi","연구자","책임연구자","교수","교수명"]);
-        const targetCol = findColumn(firstRow, ["target","목표","목표수","목표등록","목표등록수","targetenrollment"]);
-        const screenedCol = findColumn(firstRow, ["screened","스크리닝","screening"]);
-        const consentedCol = findColumn(firstRow, ["consented","동의","동의수"]);
-        const enrolledCol = findColumn(firstRow, ["enrolled","등록","등록수","등록환자수","누적등록","등록건수","totalenrolled","totalregistered"]);
-        const statusCol = findColumn(firstRow, ["연구상태","진행상태","상태","등록상태","sitestatus","status","recruitmentstatus"]);
-        const activeCol = findColumn(firstRow, ["active","진행중","진행중대상자"]);
-        const completedCol = findColumn(firstRow, ["completed","완료","완료수"]);
-        const droppedCol = findColumn(firstRow, ["dropped","중도탈락","dropout","탈락"]);
-        const queryCol = findColumn(firstRow, ["pendingquery","query","미해결query","미해결쿼리","쿼리"]);
-        const updatedCol = findColumn(firstRow, ["lastupdated","updated","최종업데이트","업데이트","update"]);
-
-        if (!siteCol || !enrolledCol) {
-          throw new Error("엑셀에서 '기관명' 열과 '등록수' 열을 찾지 못했습니다.");
-        }
-
-        const parsed = rows
-          .filter(row => row[siteCol] !== undefined && row[siteCol] !== null && String(row[siteCol]).trim() !== "")
-          .map(row => {
-            const formattedDate = updatedCol ? formatDateValue(row[updatedCol]) : "";
-            const siteStatus = statusCol ? normalizeStatusValue(row[statusCol]) : "active";
-            return {
-              site: String(row[siteCol]).trim(),
-              pi: piCol ? String(row[piCol] ?? "").trim() : "",
-              target: targetCol ? safeNumber(row[targetCol]) : 0,
-              screened: screenedCol ? safeNumber(row[screenedCol]) : 0,
-              consented: consentedCol ? safeNumber(row[consentedCol]) : 0,
-              enrolled: enrolledCol ? safeNumber(row[enrolledCol]) : 0,
-              active: activeCol ? safeNumber(row[activeCol]) : 0,
-              completed: completedCol ? safeNumber(row[completedCol]) : 0,
-              dropped: droppedCol ? safeNumber(row[droppedCol]) : 0,
-              pendingQuery: queryCol ? safeNumber(row[queryCol]) : 0,
-              siteStatus,
-              siteStatusLabel: getStatusLabel(siteStatus),
-              lastUpdatedRaw: formattedDate ? new Date(formattedDate) : null,
-              lastUpdatedDisplay: formattedDate || "-"
-            };
-          });
-
-        if (!parsed.length) {
-          throw new Error("읽어온 기관 데이터가 없습니다.");
-        }
-
-        return parsed;
-      }
-
-      function mergeExcelIntoStudyData(excelRows) {
-        const baseMap = new Map();
-
-        (supabaseBaseData.length ? supabaseBaseData : studyData).forEach(item => {
-          baseMap.set(normalizeSiteName(item.site), { ...item });
-        });
-
-        excelRows.forEach(item => {
-          const key = normalizeSiteName(item.site);
-          const existing = baseMap.get(key) || createDefaultSiteRow(item.site);
-
-          baseMap.set(key, {
-            ...existing,
-            ...item,
-            site: item.site || existing.site,
-            pi: item.pi || existing.pi,
-            target: item.target || existing.target || 0,
-            siteStatus: item.siteStatus || existing.siteStatus || "active",
-            siteStatusLabel: getStatusLabel(item.siteStatus || existing.siteStatus || "active")
-          });
-        });
-
-        studyData = Array.from(baseMap.values());
       }
 
       function resetSiteOptions() {
@@ -1026,7 +667,7 @@
         const selectedSite = siteFilter.value;
         const sortValue = sortFilter.value;
 
-        let rows = studyData.filter(row => {
+        const rows = studyData.filter(row => {
           const matchesKeyword =
             row.site.toLowerCase().includes(keyword) ||
             String(row.pi || "").toLowerCase().includes(keyword);
@@ -1060,38 +701,20 @@
           if (cur.siteStatus === "active") acc.activeSites += 1;
           if (cur.siteStatus === "hold") acc.holdSites += 1;
           if (cur.siteStatus === "closed") acc.closedSites += 1;
-          if (cur.siteStatus === "unknown") acc.unknownSites += 1;
           return acc;
         }, {
-          target: 0,
-          screened: 0,
-          consented: 0,
-          enrolled: 0,
-          active: 0,
-          completed: 0,
-          dropped: 0,
-          pendingQuery: 0,
-          siteCount: 0,
-          activeSites: 0,
-          holdSites: 0,
-          closedSites: 0,
-          unknownSites: 0
+          target: 0, screened: 0, consented: 0, enrolled: 0,
+          active: 0, completed: 0, dropped: 0, pendingQuery: 0,
+          siteCount: 0, activeSites: 0, holdSites: 0, closedSites: 0
         });
       }
 
       function updateLastUpdatedBadge(rows) {
-        if (!rows || !rows.length) {
-          updateBadge.textContent = "최종 업데이트: -";
-          return;
-        }
-
         const validDates = rows
           .map(row => row.lastUpdatedDisplay)
-          .filter(v => v && v !== "-" && String(v).trim() !== "")
+          .filter(v => v && v !== "-")
           .sort();
-
-        const latest = validDates.length ? validDates[validDates.length - 1] : "-";
-        updateBadge.textContent = `최종 업데이트: ${latest}`;
+        updateBadge.textContent = `최종 업데이트: ${validDates.length ? validDates[validDates.length - 1] : "-"}`;
       }
 
       function renderSummary(rows, totals) {
@@ -1099,7 +722,7 @@
         const cards = [
           ["참여 기관 수", totals.siteCount, `등록 진행 ${totals.activeSites} / 등록 중단 ${totals.holdSites}`],
           ["총 등록 목표", FIXED_TOTAL_TARGET, "전체 기관 등록 목표(경쟁 모집)"],
-          ["총 등록 수", totals.enrolled, FIXED_TOTAL_TARGET ? `목표 대비 ${rate}%` : "업로드된 등록 합계"],
+          ["총 등록 수", totals.enrolled, `목표 대비 ${rate}%`],
           ["진행 중 대상자", totals.active, "현재 follow-up 포함"],
           ["미해결 Query", totals.pendingQuery, "기관 확인 필요 건수"]
         ];
@@ -1114,26 +737,20 @@
       }
 
       function renderBarChart(rows) {
-        const maxEnrolled = Math.max(...rows.map(item => item.enrolled), 0);
-        const denominator = maxEnrolled > 0 ? maxEnrolled : 1;
+        const maxEnrolled = Math.max(...rows.map(item => item.enrolled), 0, 1);
 
         barChart.innerHTML = rows.map(row => {
-          const percent = row.enrolled > 0 ? Math.max(2, Math.round((row.enrolled / denominator) * 100)) : 2;
-          const inactive = isStoppedStatus(row.siteStatus);
-          const fillClasses = [
-            row.enrolled === 0 ? "zero" : "",
-            inactive ? "inactive" : ""
-          ].filter(Boolean).join(" ");
+          const percent = row.enrolled > 0 ? Math.max(2, Math.round((row.enrolled / maxEnrolled) * 100)) : 2;
           return `
             <div class="bar-item">
-              <div class="bar-label ${inactive ? "inactive" : ""}">
+              <div class="bar-label">
                 <span class="bar-status-dot ${row.siteStatus}"></span>
                 <span>${row.site}</span>
               </div>
               <div class="bar-track">
-                <div class="bar-fill ${fillClasses}" style="width:${percent}%"></div>
+                <div class="bar-fill" style="width:${percent}%"></div>
               </div>
-              <div style="text-align:right;font-weight:800;color:${inactive ? "#8a7c67" : "#003876"};">${row.enrolled.toLocaleString()}</div>
+              <div style="text-align:right;font-weight:800;color:#003876;">${row.enrolled.toLocaleString()}</div>
             </div>
           `;
         }).join("");
@@ -1153,46 +770,28 @@
         donutTotal.textContent = totalStatus.toLocaleString();
 
         legend.innerHTML = `
-          <div class="legend-item">
-            <div class="legend-left"><span class="dot" style="background:#003876"></span><span>진행중</span></div>
-            <strong>${totals.active.toLocaleString()}</strong>
-          </div>
-          <div class="legend-item">
-            <div class="legend-left"><span class="dot" style="background:#7ea7cf"></span><span>완료</span></div>
-            <strong>${totals.completed.toLocaleString()}</strong>
-          </div>
-          <div class="legend-item">
-            <div class="legend-left"><span class="dot" style="background:#d7e1ec"></span><span>중도탈락</span></div>
-            <strong>${totals.dropped.toLocaleString()}</strong>
-          </div>
+          <div class="legend-item"><div class="legend-left"><span class="dot" style="background:#003876"></span><span>진행중</span></div><strong>${totals.active.toLocaleString()}</strong></div>
+          <div class="legend-item"><div class="legend-left"><span class="dot" style="background:#7ea7cf"></span><span>완료</span></div><strong>${totals.completed.toLocaleString()}</strong></div>
+          <div class="legend-item"><div class="legend-left"><span class="dot" style="background:#d7e1ec"></span><span>중도탈락</span></div><strong>${totals.dropped.toLocaleString()}</strong></div>
         `;
       }
 
       function renderTable(rows) {
-        tableBody.innerHTML = rows.map((row) => {
+        tableBody.innerHTML = rows.map(row => {
           const progress = row.target ? Math.round((row.enrolled / row.target) * 100) : 0;
-          const queryClass = row.pendingQuery === 0 ? "pill zero" : "pill";
-          const inactive = isStoppedStatus(row.siteStatus);
-          const rowClass = inactive ? "table-row-inactive" : "";
           return `
-            <tr class="${rowClass}">
-              <td><strong class="site-name ${inactive ? "inactive" : ""}">${row.site}</strong></td>
+            <tr>
+              <td><strong>${row.site}</strong></td>
               <td>${row.pi || "-"}</td>
               <td class="text-right">${row.target.toLocaleString()}</td>
               <td class="text-right">${row.screened.toLocaleString()}</td>
               <td class="text-right">${row.consented.toLocaleString()}</td>
               <td class="text-right"><strong>${row.enrolled.toLocaleString()}</strong></td>
-              <td>
-                ${row.target > 0 ? `
-                <div class="progress-box">
-                  <div class="progress"><div class="progress-bar ${inactive ? "inactive" : ""}" style="width:${Math.min(progress, 100)}%"></div></div>
-                  <span style="font-size:13px;color:${inactive ? "#8a7c67" : "#475569"};min-width:38px;text-align:right;">${progress}%</span>
-                </div>` : `<span class="muted">-</span>`}
-              </td>
+              <td>${row.target > 0 ? progress + "%" : "-"}</td>
               <td class="text-right">${row.active.toLocaleString()}</td>
               <td class="text-right">${row.completed.toLocaleString()}</td>
               <td class="text-right">${row.dropped.toLocaleString()}</td>
-              <td class="text-right"><span class="${queryClass}">${row.pendingQuery.toLocaleString()}</span></td>
+              <td class="text-right">${row.pendingQuery.toLocaleString()}</td>
               <td>${row.lastUpdatedDisplay || "-"}</td>
             </tr>
           `;
@@ -1212,20 +811,27 @@
       function loadSampleData() {
         studyData = [...sampleData];
         supabaseBaseData = [...sampleData];
-        searchInput.value = "";
-        sortFilter.value = "enrolled";
         resetSiteOptions();
-        fileStatus.textContent = "현재: 예시 데이터 표시 중";
         renderAll();
+        fileStatus.textContent = "현재: 예시 데이터 표시 중";
       }
 
       async function loadSitesFromSupabase() {
         try {
           fileStatus.textContent = "현재: Supabase 데이터 불러오는 중";
-          const { data, error } = await supabase
+
+          if (!window.supabase) {
+            throw new Error("supabase 라이브러리가 로드되지 않았습니다.");
+          }
+
+          const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+          const { data, error } = await client
             .from("study_sites")
             .select("*")
             .order("display_order", { ascending: true });
+
+          console.log("Supabase result:", data, error);
 
           if (error) throw error;
 
@@ -1242,21 +848,18 @@
             pendingQuery: safeNumber(item.pending_query),
             siteStatus: normalizeStatusValue(item.site_status || "active"),
             siteStatusLabel: getStatusLabel(normalizeStatusValue(item.site_status || "active")),
-            lastUpdatedRaw: item.updated_at ? new Date(item.updated_at) : null,
-            lastUpdatedDisplay: item.updated_at ? formatDateValue(item.updated_at) : "-"
+            lastUpdatedDisplay: item.updated_at || item.created_at ? String(item.updated_at || item.created_at).slice(0, 10) : "-"
           }));
 
-          studyData = supabaseBaseData.length ? [...supabaseBaseData] : [...sampleData];
+          studyData = supabaseBaseData;
           resetSiteOptions();
           renderAll();
 
-          fileStatus.textContent = supabaseBaseData.length
-            ? `현재: Supabase 적용 완료 (${supabaseBaseData.length}개 기관)`
-            : "현재: Supabase 데이터 없음, 예시 데이터 표시 중";
+          fileStatus.textContent = `현재: Supabase 적용 완료 (${studyData.length}개 기관)`;
         } catch (error) {
-          console.error("Supabase 오류:", error);
+          console.error("Supabase load error:", error);
+          fileStatus.textContent = `오류: ${error.message}`;
           loadSampleData();
-          fileStatus.textContent = `Supabase 오류: ${error.message}`;
         }
       }
 
@@ -1264,48 +867,13 @@
         await loadSitesFromSupabase();
       }
 
-      function loadWorkbookFromFile(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: "array", cellDates: true });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: true });
-            const parsed = parseExcelRows(rows);
-
-            mergeExcelIntoStudyData(parsed);
-
-            searchInput.value = "";
-            sortFilter.value = "enrolled";
-            resetSiteOptions();
-            fileStatus.textContent = `현재: ${file.name} 적용 완료 (${parsed.length}개 업로드 기관 반영)`;
-            renderAll();
-          } catch (error) {
-            fileStatus.textContent = `오류: ${error.message}`;
-            alert(`엑셀 반영에 실패했습니다.\n\n${error.message}`);
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      }
-
       function downloadCSV() {
         const rows = getFilteredData();
         const headers = ["기관명","책임연구자","목표","스크리닝","동의","등록","연구 상태","진행중","완료","중도탈락","미해결 Query","최종 업데이트"];
         const csvRows = rows.map(row => [
-          row.site,
-          row.pi,
-          row.target,
-          row.screened,
-          row.consented,
-          row.enrolled,
-          row.siteStatusLabel,
-          row.active,
-          row.completed,
-          row.dropped,
-          row.pendingQuery,
-          row.lastUpdatedDisplay
+          row.site, row.pi, row.target, row.screened, row.consented,
+          row.enrolled, row.siteStatusLabel, row.active, row.completed,
+          row.dropped, row.pendingQuery, row.lastUpdatedDisplay
         ]);
 
         const csvContent = [headers, ...csvRows]
@@ -1322,27 +890,6 @@
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
       }
-
-      dropzone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropzone.classList.add("dragover");
-      });
-
-      dropzone.addEventListener("dragleave", () => {
-        dropzone.classList.remove("dragover");
-      });
-
-      dropzone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        dropzone.classList.remove("dragover");
-        const file = e.dataTransfer.files[0];
-        if (file) loadWorkbookFromFile(file);
-      });
-
-      fileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) loadWorkbookFromFile(file);
-      });
 
       searchInput.addEventListener("input", renderAll);
       siteFilter.addEventListener("change", renderAll);
