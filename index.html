@@ -1,901 +1,975 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SMART-EST 연구 등록 현황</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-      * { box-sizing: border-box; }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMART-EST 연구 등록현황</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background: #f4f7fb;
+      color: #1f2d3d;
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 24px auto 48px;
+      padding: 0 20px;
+    }
+    .header {
+      background: #ffffff;
+      border: 1px solid #d8e2f0;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+      margin-bottom: 18px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #e8f0fb;
+      color: #0d4f9a;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .title {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.25;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .subtitle {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #5b6b80;
+      line-height: 1.6;
+    }
+    .control-panel {
+      background: #ffffff;
+      border: 1px solid #d8e2f0;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+      margin-bottom: 18px;
+    }
+    .control-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #0f172a;
+    }
+    .control-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .btn {
+      border: none;
+      background: #0d4f9a;
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: #eef4fb;
+      color: #0d4f9a;
+      border: 1px solid #c9d9ee;
+    }
+    .btn.danger {
+      background: #c62828;
+    }
+    .status-box {
+      font-size: 13px;
+      color: #5b6b80;
+      background: #f8fbff;
+      border: 1px solid #d8e2f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      line-height: 1.6;
+      white-space: pre-line;
+      width: 100%;
+    }
+    .sheet-guide {
+      margin-top: 10px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #536579;
+      background: #f8fbff;
+      border: 1px dashed #bfd0e6;
+      padding: 12px 14px;
+      border-radius: 12px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #d8e2f0;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      min-height: 118px;
+    }
+    .card .label {
+      font-size: 12px;
+      color: #5b6b80;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .card .value {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0d4f9a;
+      margin-bottom: 8px;
+    }
+    .card .desc {
+      font-size: 12px;
+      color: #6b7b90;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .panel {
+      background: #fff;
+      border: 1px solid #d8e2f0;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+    .panel h3 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      color: #0f172a;
+    }
+    .site-item {
+      margin-bottom: 18px;
+    }
+    .site-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .site-name {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .site-count {
+      font-weight: 800;
+      color: #0d4f9a;
+    }
+    .progress-wrap {
+      width: 100%;
+      height: 14px;
+      background: #e8eef6;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #0d4f9a, #4c8fd6);
+      border-radius: 999px;
+    }
+    .site-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f1f6fc;
+      border: 1px solid #d8e2f0;
+      font-size: 12px;
+      color: #4b5c71;
+      font-weight: 700;
+    }
+    .donut-wrap {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 14px;
+      position: relative;
+    }
+    .donut {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(#0d4f9a 0deg, #0d4f9a 0deg, #dce7f3 0deg 360deg);
+      position: relative;
+    }
+    .donut::after {
+      content: "";
+      position: absolute;
+      inset: 28px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 1px #e3ebf5;
+    }
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 2;
+      text-align: center;
+    }
+    .donut-center .small {
+      font-size: 12px;
+      color: #6b7b90;
+      margin-bottom: 4px;
+    }
+    .donut-center .big {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .legend {
+      display: grid;
+      gap: 8px;
+    }
+    .legend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #d8e2f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    .legend-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot.active { background: #0d4f9a; }
+    .dot.completed { background: #9fc2e8; }
+    .dot.dropped { background: #dbe5f0; }
+    .filters {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .filters input,
+    .filters select {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #cfdbea;
+      border-radius: 12px;
+      padding: 0 14px;
+      background: #fff;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1000px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    thead th {
+      background: #f4f8fc;
+      color: #42556b;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 12px 10px;
+      border-bottom: 1px solid #dbe5f0;
+      white-space: nowrap;
+    }
+    tbody td {
+      font-size: 13px;
+      padding: 12px 10px;
+      border-bottom: 1px solid #edf2f8;
+      white-space: nowrap;
+      color: #223245;
+    }
+    tbody tr:hover {
+      background: #fbfdff;
+    }
+    .footer-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #6b7b90;
+    }
 
-      :root {
-        --brand-navy: #003876;
-        --brand-navy-dark: #002b5c;
-        --brand-blue-soft: #eef4fb;
-        --brand-line: #d9e3ef;
-        --brand-bg: #f4f7fb;
-        --brand-accent: #5f7896;
-        --text-main: #1f2937;
-        --text-sub: #5b6573;
-        --text-muted: #7b8794;
-        --card-bg: #ffffff;
-        --table-head: #f6f9fc;
-        --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.05);
-        --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.07);
-
-        --status-active: #003876;
-        --status-hold: #9a8f7a;
-        --status-closed: #b0b8c2;
-        --status-default: #64748b;
-      }
-
-      body {
-        margin: 0;
-        font-family: Arial, "Noto Sans KR", sans-serif;
-        background: linear-gradient(180deg, #eef3f9 0%, #f7f9fc 180px, var(--brand-bg) 100%);
-        color: var(--text-main);
-      }
-
-      .wrap {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 28px 24px 40px;
-        position: relative;
-      }
-
-      .page-update-badge {
-        position: absolute;
-        top: 4px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid #d5e2f0;
-        color: #5b6573;
-        font-size: 11px;
-        font-weight: 700;
-        white-space: nowrap;
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-        z-index: 2;
-      }
-
-      .page-update-badge::before {
-        content: "";
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--brand-accent);
-      }
-
-      .header-shell {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
-        border: 1px solid var(--brand-line);
-        border-radius: 24px;
-        padding: 24px 26px;
-        box-shadow: var(--shadow-md);
-        margin-top: 18px;
-        margin-bottom: 22px;
-      }
-
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 20px;
-        flex-wrap: wrap;
-      }
-
-      .eyebrow-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 10px;
-      }
-
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: var(--brand-navy);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 700;
-      }
-
-      .org-tag {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: var(--brand-blue-soft);
-        color: var(--brand-navy);
-        border: 1px solid #d4e2f3;
-        font-size: 11px;
-        font-weight: 700;
-      }
-
-      .title-main {
-        margin: 0;
-        font-size: 28px;
-        line-height: 1.2;
-        font-weight: 800;
-        color: var(--brand-navy-dark);
-      }
-
-      .title-main .est { color: var(--brand-accent); }
-
-      .title-fullterm {
-        font-size: 14px;
-        line-height: 1.4;
-        color: #475569;
-        font-weight: 600;
-      }
-
-      .title-fullterm .accent {
-        color: var(--brand-accent);
-        font-weight: 800;
-      }
-
-      .top-actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
-      .btn {
-        border: 1px solid var(--brand-navy);
-        background: var(--brand-navy);
-        color: white;
-        padding: 10px 14px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-
-      .btn.secondary {
-        background: #ffffff;
-        color: var(--brand-navy);
-        border: 1px solid #c9d8ea;
-      }
-
-      .dropzone {
-        border: 1.5px dashed #9db6d3;
-        background: linear-gradient(180deg, #fbfdff 0%, #f5f9fe 100%);
-        border-radius: 20px;
-        padding: 26px;
-        margin-bottom: 24px;
-        text-align: center;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .dropzone-title {
-        font-size: 18px;
-        font-weight: 800;
-        color: var(--brand-navy);
-      }
-
-      .dropzone-sub {
-        margin-top: 8px;
-        font-size: 14px;
-        color: var(--text-sub);
-        line-height: 1.6;
-      }
-
-      .dropzone-row {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 18px;
-        flex-wrap: wrap;
-      }
-
-      .status-box {
-        margin-top: 14px;
-        font-size: 14px;
-        color: #334155;
-        font-weight: 600;
-      }
-
-      .hint-box {
-        margin-top: 18px;
-        background: white;
-        border: 1px solid #dbe5f2;
-        border-radius: 14px;
-        padding: 16px;
-        text-align: left;
-        font-size: 13px;
-        color: #475569;
-      }
-
-      .grid5 {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-      }
-
-      .grid2 {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 16px;
-        margin-bottom: 24px;
-      }
-
-      .card {
-        background: var(--card-bg);
-        border: 1px solid var(--brand-line);
-        border-radius: 20px;
-        padding: 22px;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .metric-label {
-        font-size: 13px;
-        color: var(--text-sub);
-        font-weight: 700;
-      }
-
-      .metric-value {
-        font-size: 34px;
-        font-weight: 800;
-        margin-top: 10px;
-        color: var(--brand-navy);
-      }
-
-      .metric-sub {
-        margin-top: 10px;
-        font-size: 13px;
-        color: var(--text-muted);
-      }
-
-      .section-title {
-        font-size: 18px;
-        font-weight: 800;
-        margin-bottom: 16px;
-        color: var(--brand-navy-dark);
-      }
-
-      .filters {
-        display: grid;
-        grid-template-columns: 1.3fr 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 24px;
-      }
-
-      input, select {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1px solid #d1d9e6;
-        border-radius: 12px;
-        font-size: 14px;
-        background: white;
-        color: var(--text-main);
-      }
-
-      .table-wrap { overflow-x: auto; }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 1140px;
-      }
-
-      th, td {
-        padding: 13px 10px;
-        border-bottom: 1px solid #e5ebf3;
-        font-size: 14px;
-        text-align: left;
-        vertical-align: middle;
-      }
-
-      th {
-        background: var(--table-head);
-        color: #475569;
-        font-weight: 800;
-      }
-
-      .text-right { text-align: right; }
-
-      .chart-row {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .bar-item {
-        display: grid;
-        grid-template-columns: 220px 1fr 78px;
-        gap: 12px;
-        align-items: center;
-      }
-
-      .bar-label {
-        font-size: 14px;
-        font-weight: 700;
-        color: #334155;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .bar-track {
-        width: 100%;
-        height: 18px;
-        background: #e6edf5;
-        border-radius: 999px;
-        overflow: hidden;
-      }
-
-      .bar-fill {
-        height: 100%;
-        min-width: 2px;
-        background: linear-gradient(90deg, #003876 0%, #4f86c6 100%);
-        border-radius: 999px;
-      }
-
-      .bar-status-dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        flex: 0 0 auto;
-      }
-
-      .bar-status-dot.active { background: var(--status-active); }
-      .bar-status-dot.hold { background: var(--status-hold); }
-      .bar-status-dot.closed { background: var(--status-closed); }
-      .bar-status-dot.unknown { background: var(--status-default); }
-
-      .donut-wrap {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 8px 0 18px;
-      }
-
-      .donut {
-        width: 220px;
-        height: 220px;
-        border-radius: 50%;
-        position: relative;
-      }
-
-      .donut::after {
-        content: "";
-        position: absolute;
-        inset: 38px;
-        background: white;
-        border-radius: 50%;
-        box-shadow: inset 0 0 0 1px #edf2f7;
-      }
-
-      .donut-center {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 1;
-        text-align: center;
-      }
-
-      .donut-center strong {
-        font-size: 28px;
-        color: var(--brand-navy);
-      }
-
-      .legend {
-        display: grid;
-        gap: 10px;
-      }
-
-      .legend-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-        padding: 10px 12px;
-        border-radius: 12px;
-        background: #fbfdff;
-        border: 1px solid #e7eef7;
-      }
-
-      .legend-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-      }
-
-      .status-note {
-        margin-top: 14px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .status-note-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        border-radius: 999px;
-        background: #fbfdff;
-        border: 1px solid #e7eef7;
-        font-size: 12px;
-        color: #475569;
-        font-weight: 700;
-      }
-
-      .note {
-        margin-top: 24px;
-        background: #ffffff;
-        border: 1px solid #dbe5f2;
-        border-radius: 18px;
-        padding: 18px 20px;
-        color: #475569;
-        font-size: 14px;
-        line-height: 1.7;
-        box-shadow: var(--shadow-sm);
-      }
-
-      @media (max-width: 1024px) {
-        .grid5, .grid2, .filters { grid-template-columns: 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <div class="page-update-badge" id="updateBadge">최종 업데이트: -</div>
-
-      <div class="header-shell">
-        <div class="header">
-          <div>
-            <div class="eyebrow-row">
-              <div class="badge">SMART-EST</div>
-              <div class="org-tag">Enrollment Dashboard</div>
-            </div>
-
-            <h1 class="title-main">
-              SMART-<span class="est">EST</span> 연구 등록 현황
-            </h1>
-
-            <div class="title-fullterm">
-              <span class="accent">E</span>ndova<span class="accent">S</span>cular Treatment or
-              <span class="accent">T</span>hrombolytic Therapy
-            </div>
-          </div>
-
-          <div class="top-actions">
-            <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
-            <button class="btn secondary" onclick="reloadSupabase()">Supabase 새로고침</button>
-            <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
-          </div>
-        </div>
+    @media (max-width: 1200px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .cards { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr; }
+      .title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="header">
+      <div class="badge">SMART-EST Dashboard</div>
+      <h1 class="title">SMART-EST 연구 등록현황</h1>
+      <div class="subtitle">
+        Endovascular Treatment or Thrombolytic Therapy 기반 연구 등록 현황 대시보드
       </div>
+    </section>
 
-      <div class="dropzone" id="dropzone">
-        <div class="dropzone-title">엑셀 파일 업로드</div>
-        <div class="dropzone-sub">
-          .xlsx / .xls / .csv 파일을 드래그하거나 선택하면<br>
-          Supabase 기관 목록 기준으로 값을 반영합니다.
-        </div>
-        <div class="dropzone-row">
-          <button class="btn secondary" onclick="document.getElementById('fileInput').click()">파일 선택</button>
-          <button class="btn secondary" onclick="loadSampleData()">예시 데이터로 되돌리기</button>
-        </div>
-        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none" />
-        <div class="status-box" id="fileStatus">현재: 초기화 중</div>
-
-        <div class="hint-box">
-          <div><strong>엑셀 열 이름 추천</strong></div>
-          <div style="margin-top:8px; line-height:1.7;">
-            기관명 / site / 기관<br>
-            등록수 / enrolled / 등록 / total enrolled<br>
-            목표수 / target<br>
-            연구상태 / 연구 상태 / 진행상태 / 상태 / site status / status<br>
-            진행중 / active, 완료 / completed, 중도탈락 / dropped, query / pendingQuery<br>
-            최종업데이트 / lastUpdated
-          </div>
-        </div>
+    <section class="control-panel">
+      <div class="control-title">엑셀 업로드 및 자동 반영</div>
+      <div class="control-row">
+        <label for="excelFile" class="btn">엑셀 업로드</label>
+        <input type="file" id="excelFile" accept=".xlsx,.xls" />
+        <button class="btn secondary" id="reloadBtn">DB 다시 불러오기</button>
+        <button class="btn danger" id="resetBtn">전체 초기화</button>
       </div>
-
-      <div class="grid5" id="summaryCards"></div>
-
-      <div class="grid2">
-        <div class="card">
-          <div class="section-title">기관별 등록 현황</div>
-          <div class="chart-row" id="barChart"></div>
-          <div class="status-note">
-            <div class="status-note-item"><span class="bar-status-dot active"></span>등록 진행 기관</div>
-            <div class="status-note-item"><span class="bar-status-dot hold"></span>등록 중단 기관</div>
-            <div class="status-note-item"><span class="bar-status-dot closed"></span>등록 종료 기관</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="section-title">대상자 상태 비율</div>
-          <div class="donut-wrap">
-            <div id="donut" class="donut">
-              <div class="donut-center">
-                <div style="font-size:13px;color:#6b7280;">총 대상자</div>
-                <strong id="donutTotal">0</strong>
-              </div>
-            </div>
-          </div>
-          <div class="legend" id="legend"></div>
-        </div>
+      <div class="status-box" id="uploadStatus">대기 중</div>
+      <div class="sheet-guide">
+엑셀 컬럼명 예시
+site / 기관명
+pi / 책임연구자
+target / 목표
+screened / 스크리닝
+consented / 동의
+enrolled / 등록
+active / 진행중
+completed / 완료
+dropped / 중도탈락
+pendingQuery / pending_query / 미해결 Query
+lastUpdated / last_updated / 최종업데이트
+displayOrder / display_order
       </div>
+    </section>
 
+    <section class="cards">
       <div class="card">
-        <div class="filters">
-          <input type="text" id="searchInput" placeholder="기관명 또는 연구자명 검색" />
-          <select id="siteFilter">
-            <option value="all">전체 기관</option>
-          </select>
-          <select id="sortFilter">
-            <option value="enrolled">등록 수 순</option>
-            <option value="screened">스크리닝 수 순</option>
-            <option value="pendingQuery">미해결 Query 순</option>
-            <option value="progress">등록률 순</option>
-          </select>
-        </div>
+        <div class="label">참여 기관 수</div>
+        <div class="value" id="siteCount">0</div>
+        <div class="desc" id="siteCountDesc">등록 진행 0 / 등록 종료 0</div>
+      </div>
+      <div class="card">
+        <div class="label">총 등록 목표</div>
+        <div class="value" id="totalTarget">10,000</div>
+        <div class="desc">전체 기관 등록 목표(경쟁 모집)</div>
+      </div>
+      <div class="card">
+        <div class="label">총 등록 수</div>
+        <div class="value" id="totalEnrolled">0</div>
+        <div class="desc" id="enrollmentRate">목표 대비 0%</div>
+      </div>
+      <div class="card">
+        <div class="label">진행 중 대상자</div>
+        <div class="value" id="totalActive">0</div>
+        <div class="desc">현재 follow-up 포함</div>
+      </div>
+      <div class="card">
+        <div class="label">미해결 Query</div>
+        <div class="value" id="totalQuery">0</div>
+        <div class="desc">기관 확인 필요 건수</div>
+      </div>
+    </section>
 
-        <div class="section-title">기관별 상세 현황</div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>기관명</th>
-                <th>책임연구자</th>
-                <th class="text-right">목표</th>
-                <th class="text-right">스크리닝</th>
-                <th class="text-right">동의</th>
-                <th class="text-right">등록</th>
-                <th>진행률</th>
-                <th class="text-right">진행중</th>
-                <th class="text-right">완료</th>
-                <th class="text-right">중도탈락</th>
-                <th class="text-right">미해결 Query</th>
-                <th>최종 업데이트</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
+    <section class="grid">
+      <div class="panel">
+        <h3>기관별 등록 현황</h3>
+        <div id="siteList"></div>
       </div>
 
-      <div class="note">
-        <strong>사용 방법</strong>
-        <ul>
-          <li>페이지 로드 시 Supabase의 study_sites 데이터를 먼저 불러옵니다.</li>
-          <li>엑셀 업로드 시 동일 기관명 기준으로 덮어씁니다.</li>
-        </ul>
-      </div>
-    </div>
-
-    <script>
-      const FIXED_TOTAL_TARGET = 10000;
-
-      const SUPABASE_URL = "https://coylnollejkngrnreijt.supabase.co";
-      const SUPABASE_KEY = "sb_publishable_XDxYpO-G0UXjdyyknjgCoA_siyjCHlP";
-
-      const sampleData = [
-        {
-          site: "예시기관",
-          pi: "",
-          target: 0,
-          screened: 0,
-          consented: 0,
-          enrolled: 0,
-          active: 0,
-          completed: 0,
-          dropped: 0,
-          pendingQuery: 0,
-          siteStatus: "active",
-          siteStatusLabel: "등록 진행",
-          lastUpdatedDisplay: "2026-04-02"
-        }
-      ];
-
-      let studyData = [];
-      let supabaseBaseData = [];
-
-      const searchInput = document.getElementById("searchInput");
-      const siteFilter = document.getElementById("siteFilter");
-      const sortFilter = document.getElementById("sortFilter");
-      const tableBody = document.getElementById("tableBody");
-      const summaryCards = document.getElementById("summaryCards");
-      const barChart = document.getElementById("barChart");
-      const donut = document.getElementById("donut");
-      const donutTotal = document.getElementById("donutTotal");
-      const legend = document.getElementById("legend");
-      const fileStatus = document.getElementById("fileStatus");
-      const fileInput = document.getElementById("fileInput");
-      const updateBadge = document.getElementById("updateBadge");
-
-      function safeNumber(value) {
-        if (value === null || value === undefined || value === "") return 0;
-        const num = Number(String(value).replace(/,/g, "").trim());
-        return isNaN(num) ? 0 : num;
-      }
-
-      function normalizeSiteName(value) {
-        return String(value || "").trim().toLowerCase().replace(/\s+/g, "");
-      }
-
-      function normalizeStatusValue(value) {
-        const v = String(value || "").trim().toLowerCase().replace(/\s+/g, "");
-        if (["active","open","ongoing","recruiting","진행","진행중","등록중","등록진행","모집중"].includes(v)) return "active";
-        if (["hold","paused","onhold","중지","보류","등록중단","모집중지"].includes(v)) return "hold";
-        if (["closed","complete","completed","종료","마감","등록종료","모집종료"].includes(v)) return "closed";
-        return "unknown";
-      }
-
-      function getStatusLabel(status) {
-        if (status === "active") return "등록 진행";
-        if (status === "hold") return "등록 중단";
-        if (status === "closed") return "등록 종료";
-        return "미지정";
-      }
-
-      function resetSiteOptions() {
-        siteFilter.innerHTML = '<option value="all">전체 기관</option>';
-        studyData.forEach(item => {
-          const option = document.createElement("option");
-          option.value = item.site;
-          option.textContent = item.site;
-          siteFilter.appendChild(option);
-        });
-      }
-
-      function getFilteredData() {
-        const keyword = searchInput.value.trim().toLowerCase();
-        const selectedSite = siteFilter.value;
-        const sortValue = sortFilter.value;
-
-        const rows = studyData.filter(row => {
-          const matchesKeyword =
-            row.site.toLowerCase().includes(keyword) ||
-            String(row.pi || "").toLowerCase().includes(keyword);
-          const matchesSite = selectedSite === "all" || row.site === selectedSite;
-          return matchesKeyword && matchesSite;
-        });
-
-        rows.sort((a, b) => {
-          if (sortValue === "progress") {
-            const aRate = a.target ? a.enrolled / a.target : a.enrolled;
-            const bRate = b.target ? b.enrolled / b.target : b.enrolled;
-            return bRate - aRate;
-          }
-          return (b[sortValue] || 0) - (a[sortValue] || 0);
-        });
-
-        return rows;
-      }
-
-      function getTotals(rows) {
-        return rows.reduce((acc, cur) => {
-          acc.target += cur.target;
-          acc.screened += cur.screened;
-          acc.consented += cur.consented;
-          acc.enrolled += cur.enrolled;
-          acc.active += cur.active;
-          acc.completed += cur.completed;
-          acc.dropped += cur.dropped;
-          acc.pendingQuery += cur.pendingQuery;
-          acc.siteCount += 1;
-          if (cur.siteStatus === "active") acc.activeSites += 1;
-          if (cur.siteStatus === "hold") acc.holdSites += 1;
-          if (cur.siteStatus === "closed") acc.closedSites += 1;
-          return acc;
-        }, {
-          target: 0, screened: 0, consented: 0, enrolled: 0,
-          active: 0, completed: 0, dropped: 0, pendingQuery: 0,
-          siteCount: 0, activeSites: 0, holdSites: 0, closedSites: 0
-        });
-      }
-
-      function updateLastUpdatedBadge(rows) {
-        const validDates = rows
-          .map(row => row.lastUpdatedDisplay)
-          .filter(v => v && v !== "-")
-          .sort();
-        updateBadge.textContent = `최종 업데이트: ${validDates.length ? validDates[validDates.length - 1] : "-"}`;
-      }
-
-      function renderSummary(rows, totals) {
-        const rate = FIXED_TOTAL_TARGET ? Math.round((totals.enrolled / FIXED_TOTAL_TARGET) * 100) : 0;
-        const cards = [
-          ["참여 기관 수", totals.siteCount, `등록 진행 ${totals.activeSites} / 등록 중단 ${totals.holdSites}`],
-          ["총 등록 목표", FIXED_TOTAL_TARGET, "전체 기관 등록 목표(경쟁 모집)"],
-          ["총 등록 수", totals.enrolled, `목표 대비 ${rate}%`],
-          ["진행 중 대상자", totals.active, "현재 follow-up 포함"],
-          ["미해결 Query", totals.pendingQuery, "기관 확인 필요 건수"]
-        ];
-
-        summaryCards.innerHTML = cards.map(card => `
-          <div class="card">
-            <div class="metric-label">${card[0]}</div>
-            <div class="metric-value">${Number(card[1]).toLocaleString()}</div>
-            <div class="metric-sub">${card[2]}</div>
+      <div class="panel">
+        <h3>대상자 상태 비율</h3>
+        <div class="donut-wrap">
+          <div class="donut" id="statusDonut"></div>
+          <div class="donut-center">
+            <div class="small">총 대상자</div>
+            <div class="big" id="donutTotal">0</div>
           </div>
-        `).join("");
-      }
-
-      function renderBarChart(rows) {
-        const maxEnrolled = Math.max(...rows.map(item => item.enrolled), 0, 1);
-
-        barChart.innerHTML = rows.map(row => {
-          const percent = row.enrolled > 0 ? Math.max(2, Math.round((row.enrolled / maxEnrolled) * 100)) : 2;
-          return `
-            <div class="bar-item">
-              <div class="bar-label">
-                <span class="bar-status-dot ${row.siteStatus}"></span>
-                <span>${row.site}</span>
-              </div>
-              <div class="bar-track">
-                <div class="bar-fill" style="width:${percent}%"></div>
-              </div>
-              <div style="text-align:right;font-weight:800;color:#003876;">${row.enrolled.toLocaleString()}</div>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-left">
+              <span class="dot active"></span><span>진행중</span>
             </div>
-          `;
-        }).join("");
-      }
+            <strong id="legendActive">0</strong>
+          </div>
+          <div class="legend-item">
+            <div class="legend-left">
+              <span class="dot completed"></span><span>완료</span>
+            </div>
+            <strong id="legendCompleted">0</strong>
+          </div>
+          <div class="legend-item">
+            <div class="legend-left">
+              <span class="dot dropped"></span><span>중도탈락</span>
+            </div>
+            <strong id="legendDropped">0</strong>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      function renderDonut(totals) {
-        const totalStatus = totals.active + totals.completed + totals.dropped;
-        const activePercent = totalStatus ? (totals.active / totalStatus) * 100 : 0;
-        const completedPercent = totalStatus ? (totals.completed / totalStatus) * 100 : 0;
+    <section class="panel">
+      <div class="filters">
+        <input type="text" id="searchInput" placeholder="기관명 또는 책임연구자 검색" />
+        <select id="statusFilter">
+          <option value="all">전체 기관</option>
+          <option value="recruiting">등록 진행 기관</option>
+          <option value="closed">등록 종료 기관</option>
+        </select>
+        <select id="sortFilter">
+          <option value="display_order_asc">표시 순서 순</option>
+          <option value="enrolled_desc">등록 수 순</option>
+          <option value="target_desc">목표 순</option>
+          <option value="site_asc">기관명 순</option>
+          <option value="updated_desc">최종 업데이트 최신순</option>
+        </select>
+      </div>
 
-        donut.style.background = `conic-gradient(
-          #003876 0% ${activePercent}%,
-          #7ea7cf ${activePercent}% ${activePercent + completedPercent}%,
-          #d7e1ec ${activePercent + completedPercent}% 100%
-        )`;
-
-        donutTotal.textContent = totalStatus.toLocaleString();
-
-        legend.innerHTML = `
-          <div class="legend-item"><div class="legend-left"><span class="dot" style="background:#003876"></span><span>진행중</span></div><strong>${totals.active.toLocaleString()}</strong></div>
-          <div class="legend-item"><div class="legend-left"><span class="dot" style="background:#7ea7cf"></span><span>완료</span></div><strong>${totals.completed.toLocaleString()}</strong></div>
-          <div class="legend-item"><div class="legend-left"><span class="dot" style="background:#d7e1ec"></span><span>중도탈락</span></div><strong>${totals.dropped.toLocaleString()}</strong></div>
-        `;
-      }
-
-      function renderTable(rows) {
-        tableBody.innerHTML = rows.map(row => {
-          const progress = row.target ? Math.round((row.enrolled / row.target) * 100) : 0;
-          return `
+      <h3 style="margin-bottom: 14px;">기관별 상세 현황</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
             <tr>
-              <td><strong>${row.site}</strong></td>
-              <td>${row.pi || "-"}</td>
-              <td class="text-right">${row.target.toLocaleString()}</td>
-              <td class="text-right">${row.screened.toLocaleString()}</td>
-              <td class="text-right">${row.consented.toLocaleString()}</td>
-              <td class="text-right"><strong>${row.enrolled.toLocaleString()}</strong></td>
-              <td>${row.target > 0 ? progress + "%" : "-"}</td>
-              <td class="text-right">${row.active.toLocaleString()}</td>
-              <td class="text-right">${row.completed.toLocaleString()}</td>
-              <td class="text-right">${row.dropped.toLocaleString()}</td>
-              <td class="text-right">${row.pendingQuery.toLocaleString()}</td>
-              <td>${row.lastUpdatedDisplay || "-"}</td>
+              <th>기관명</th>
+              <th>책임연구자</th>
+              <th>목표</th>
+              <th>스크리닝</th>
+              <th>동의</th>
+              <th>등록</th>
+              <th>진행률</th>
+              <th>진행중</th>
+              <th>완료</th>
+              <th>중도탈락</th>
+              <th>미해결 Query</th>
+              <th>최종 업데이트</th>
             </tr>
-          `;
-        }).join("");
-      }
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="footer-note" id="lastSyncText">마지막 동기화: -</div>
+    </section>
+  </div>
 
-      function renderAll() {
-        const rows = getFilteredData();
-        const totals = getTotals(rows);
-        renderSummary(rows, totals);
-        renderBarChart(rows);
-        renderDonut(totals);
-        renderTable(rows);
-        updateLastUpdatedBadge(rows);
-      }
+  <script>
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_KEY = "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      function loadSampleData() {
-        studyData = [...sampleData];
-        supabaseBaseData = [...sampleData];
-        resetSiteOptions();
-        renderAll();
-        fileStatus.textContent = "현재: 예시 데이터 표시 중";
-      }
+    const state = {
+      rawRows: [],
+      rows: [],
+      filteredRows: [],
+      totalTargetFixed: 10000,
+      lastSync: null
+    };
 
-      async function loadSitesFromSupabase() {
-        try {
-          fileStatus.textContent = "현재: Supabase 데이터 불러오는 중";
+    const el = {
+      excelFile: document.getElementById("excelFile"),
+      uploadStatus: document.getElementById("uploadStatus"),
+      reloadBtn: document.getElementById("reloadBtn"),
+      resetBtn: document.getElementById("resetBtn"),
 
-          if (!window.supabase) {
-            throw new Error("supabase 라이브러리가 로드되지 않았습니다.");
-          }
+      siteCount: document.getElementById("siteCount"),
+      siteCountDesc: document.getElementById("siteCountDesc"),
+      totalTarget: document.getElementById("totalTarget"),
+      totalEnrolled: document.getElementById("totalEnrolled"),
+      enrollmentRate: document.getElementById("enrollmentRate"),
+      totalActive: document.getElementById("totalActive"),
+      totalQuery: document.getElementById("totalQuery"),
 
-          const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      siteList: document.getElementById("siteList"),
+      tableBody: document.getElementById("tableBody"),
 
-          const { data, error } = await client
-            .from("study_sites")
-            .select("*")
-            .order("display_order", { ascending: true });
+      statusDonut: document.getElementById("statusDonut"),
+      donutTotal: document.getElementById("donutTotal"),
+      legendActive: document.getElementById("legendActive"),
+      legendCompleted: document.getElementById("legendCompleted"),
+      legendDropped: document.getElementById("legendDropped"),
 
-          console.log("Supabase result:", data, error);
+      searchInput: document.getElementById("searchInput"),
+      statusFilter: document.getElementById("statusFilter"),
+      sortFilter: document.getElementById("sortFilter"),
+      lastSyncText: document.getElementById("lastSyncText")
+    };
 
-          if (error) throw error;
+    function numberOrZero(v) {
+      if (v === null || v === undefined || v === "") return 0;
+      const n = Number(String(v).replace(/,/g, "").trim());
+      return Number.isFinite(n) ? n : 0;
+    }
 
-          supabaseBaseData = (data || []).map(item => ({
-            site: item.site_name || "",
-            pi: item.pi_name || "",
-            target: safeNumber(item.target_enrollment),
-            screened: safeNumber(item.screened),
-            consented: safeNumber(item.consented),
-            enrolled: safeNumber(item.enrolled),
-            active: safeNumber(item.active),
-            completed: safeNumber(item.completed),
-            dropped: safeNumber(item.dropped),
-            pendingQuery: safeNumber(item.pending_query),
-            siteStatus: normalizeStatusValue(item.site_status || "active"),
-            siteStatusLabel: getStatusLabel(normalizeStatusValue(item.site_status || "active")),
-            lastUpdatedDisplay: item.updated_at || item.created_at ? String(item.updated_at || item.created_at).slice(0, 10) : "-"
-          }));
+    function safeText(v) {
+      return (v ?? "").toString().trim();
+    }
 
-          studyData = supabaseBaseData;
-          resetSiteOptions();
-          renderAll();
+    function formatNumber(v) {
+      return Number(v || 0).toLocaleString("ko-KR");
+    }
 
-          fileStatus.textContent = `현재: Supabase 적용 완료 (${studyData.length}개 기관)`;
-        } catch (error) {
-          console.error("Supabase load error:", error);
-          fileStatus.textContent = `오류: ${error.message}`;
-          loadSampleData();
+    function normalizeDate(v) {
+      if (!v) return "-";
+
+      if (typeof v === "string") {
+        const text = v.trim();
+        if (!text) return "-";
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+        if (/^\d{4}\.\d{2}\.\d{2}$/.test(text)) return text.replace(/\./g, "-");
+        if (/^\d{4}\/\d{2}\/\d{2}$/.test(text)) return text.replace(/\//g, "-");
+        const d = new Date(text);
+        if (!isNaN(d.getTime())) {
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
         }
+        return text;
       }
 
-      async function reloadSupabase() {
-        await loadSitesFromSupabase();
+      if (v instanceof Date && !isNaN(v.getTime())) {
+        const yyyy = v.getFullYear();
+        const mm = String(v.getMonth() + 1).padStart(2, "0");
+        const dd = String(v.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
       }
 
-      function downloadCSV() {
-        const rows = getFilteredData();
-        const headers = ["기관명","책임연구자","목표","스크리닝","동의","등록","연구 상태","진행중","완료","중도탈락","미해결 Query","최종 업데이트"];
-        const csvRows = rows.map(row => [
-          row.site, row.pi, row.target, row.screened, row.consented,
-          row.enrolled, row.siteStatusLabel, row.active, row.completed,
-          row.dropped, row.pendingQuery, row.lastUpdatedDisplay
-        ]);
+      return "-";
+    }
 
-        const csvContent = [headers, ...csvRows]
-          .map(line => line.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-          .join("\n");
+    function detectKey(row, candidates) {
+      const keys = Object.keys(row || {});
+      for (const candidate of candidates) {
+        const found = keys.find(k => k.toLowerCase().replace(/[\s_]/g, "") === candidate.toLowerCase().replace(/[\s_]/g, ""));
+        if (found) return found;
+      }
+      return null;
+    }
 
-        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "SMART-EST_등록현황.csv";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+    function normalizeExcelRow(raw, index) {
+      const siteKey = detectKey(raw, ["site", "기관", "기관명"]);
+      const piKey = detectKey(raw, ["pi", "책임연구자"]);
+      const targetKey = detectKey(raw, ["target", "목표"]);
+      const screenedKey = detectKey(raw, ["screened", "스크리닝"]);
+      const consentedKey = detectKey(raw, ["consented", "동의"]);
+      const enrolledKey = detectKey(raw, ["enrolled", "등록"]);
+      const activeKey = detectKey(raw, ["active", "진행중"]);
+      const completedKey = detectKey(raw, ["completed", "완료"]);
+      const droppedKey = detectKey(raw, ["dropped", "중도탈락"]);
+      const pendingQueryKey = detectKey(raw, ["pendingquery", "pending_query", "query", "미해결query", "미해결쿼리"]);
+      const lastUpdatedKey = detectKey(raw, ["lastupdated", "last_updated", "최종업데이트", "최종업데이트일", "최종업데이트날짜", "최종 업데이트"]);
+      const displayOrderKey = detectKey(raw, ["displayorder", "display_order", "순서", "표시순서"]);
+
+      return {
+        site: safeText(raw[siteKey]),
+        pi: safeText(raw[piKey] || "-"),
+        target: numberOrZero(raw[targetKey]),
+        screened: numberOrZero(raw[screenedKey]),
+        consented: numberOrZero(raw[consentedKey]),
+        enrolled: numberOrZero(raw[enrolledKey]),
+        active: numberOrZero(raw[activeKey]),
+        completed: numberOrZero(raw[completedKey]),
+        dropped: numberOrZero(raw[droppedKey]),
+        pending_query: numberOrZero(raw[pendingQueryKey]),
+        last_updated: normalizeDate(raw[lastUpdatedKey]),
+        display_order: raw[displayOrderKey] === undefined || raw[displayOrderKey] === null || raw[displayOrderKey] === ""
+          ? index + 1
+          : numberOrZero(raw[displayOrderKey])
+      };
+    }
+
+    function normalizeDbRow(raw) {
+      return {
+        site: safeText(raw.site),
+        pi: safeText(raw.pi || "-"),
+        target: numberOrZero(raw.target),
+        screened: numberOrZero(raw.screened),
+        consented: numberOrZero(raw.consented),
+        enrolled: numberOrZero(raw.enrolled),
+        active: numberOrZero(raw.active),
+        completed: numberOrZero(raw.completed),
+        dropped: numberOrZero(raw.dropped),
+        pending_query: numberOrZero(raw.pending_query),
+        last_updated: normalizeDate(raw.last_updated),
+        display_order: numberOrZero(raw.display_order)
+      };
+    }
+
+    function mergeSites(rows) {
+      const map = new Map();
+
+      rows.forEach(row => {
+        if (!row.site) return;
+
+        if (!map.has(row.site)) {
+          map.set(row.site, {
+            site: row.site,
+            pi: row.pi || "-",
+            target: 0,
+            screened: 0,
+            consented: 0,
+            enrolled: 0,
+            active: 0,
+            completed: 0,
+            dropped: 0,
+            pending_query: 0,
+            last_updated: "-",
+            display_order: row.display_order || 999999
+          });
+        }
+
+        const item = map.get(row.site);
+        item.pi = item.pi === "-" && row.pi ? row.pi : item.pi;
+        item.target += row.target;
+        item.screened += row.screened;
+        item.consented += row.consented;
+        item.enrolled += row.enrolled;
+        item.active += row.active;
+        item.completed += row.completed;
+        item.dropped += row.dropped;
+        item.pending_query += row.pending_query;
+
+        if ((row.display_order || 999999) < item.display_order) {
+          item.display_order = row.display_order || 999999;
+        }
+
+        if (row.last_updated && row.last_updated !== "-") {
+          if (item.last_updated === "-" || row.last_updated > item.last_updated) {
+            item.last_updated = row.last_updated;
+          }
+        }
+      });
+
+      return Array.from(map.values());
+    }
+
+    function getRecruitingStatus(row) {
+      return row.target > row.enrolled ? "recruiting" : "closed";
+    }
+
+    function getProgressRate(row) {
+      if (!row.target || row.target <= 0) return 0;
+      return Math.min((row.enrolled / row.target) * 100, 100);
+    }
+
+    function applyFilters() {
+      const q = el.searchInput.value.trim().toLowerCase();
+      const status = el.statusFilter.value;
+      const sort = el.sortFilter.value;
+
+      let rows = [...state.rows];
+
+      if (q) {
+        rows = rows.filter(r =>
+          r.site.toLowerCase().includes(q) ||
+          (r.pi || "").toLowerCase().includes(q)
+        );
       }
 
-      searchInput.addEventListener("input", renderAll);
-      siteFilter.addEventListener("change", renderAll);
-      sortFilter.addEventListener("change", renderAll);
+      if (status !== "all") {
+        rows = rows.filter(r => getRecruitingStatus(r) === status);
+      }
 
-      loadSitesFromSupabase();
-    </script>
-  </body>
+      rows.sort((a, b) => {
+        switch (sort) {
+          case "display_order_asc":
+            return (a.display_order || 999999) - (b.display_order || 999999);
+          case "target_desc":
+            return b.target - a.target;
+          case "site_asc":
+            return a.site.localeCompare(b.site, "ko");
+          case "updated_desc":
+            return (b.last_updated || "").localeCompare(a.last_updated || "");
+          case "enrolled_desc":
+          default:
+            return b.enrolled - a.enrolled;
+        }
+      });
+
+      state.filteredRows = rows;
+      renderAll();
+    }
+
+    function renderSummary() {
+      const rows = state.rows;
+
+      const totalSites = rows.length;
+      const recruitingSites = rows.filter(r => getRecruitingStatus(r) === "recruiting").length;
+      const closedSites = rows.filter(r => getRecruitingStatus(r) === "closed").length;
+
+      const totalEnrolled = rows.reduce((sum, r) => sum + r.enrolled, 0);
+      const totalActive = rows.reduce((sum, r) => sum + r.active, 0);
+      const totalCompleted = rows.reduce((sum, r) => sum + r.completed, 0);
+      const totalDropped = rows.reduce((sum, r) => sum + r.dropped, 0);
+      const totalQuery = rows.reduce((sum, r) => sum + r.pending_query, 0);
+
+      const enrolledRate = state.totalTargetFixed > 0
+        ? ((totalEnrolled / state.totalTargetFixed) * 100).toFixed(1)
+        : "0.0";
+
+      el.siteCount.textContent = formatNumber(totalSites);
+      el.siteCountDesc.textContent = `등록 진행 ${formatNumber(recruitingSites)} / 등록 종료 ${formatNumber(closedSites)}`;
+      el.totalTarget.textContent = formatNumber(state.totalTargetFixed);
+      el.totalEnrolled.textContent = formatNumber(totalEnrolled);
+      el.enrollmentRate.textContent = `목표 대비 ${enrolledRate}%`;
+      el.totalActive.textContent = formatNumber(totalActive);
+      el.totalQuery.textContent = formatNumber(totalQuery);
+
+      const totalStatus = totalActive + totalCompleted + totalDropped;
+      el.donutTotal.textContent = formatNumber(totalStatus);
+      el.legendActive.textContent = formatNumber(totalActive);
+      el.legendCompleted.textContent = formatNumber(totalCompleted);
+      el.legendDropped.textContent = formatNumber(totalDropped);
+
+      let activeDeg = 0;
+      let completedDeg = 0;
+
+      if (totalStatus > 0) {
+        activeDeg = (totalActive / totalStatus) * 360;
+        completedDeg = (totalCompleted / totalStatus) * 360;
+      }
+
+      el.statusDonut.style.background = `
+        conic-gradient(
+          #0d4f9a 0deg ${activeDeg}deg,
+          #9fc2e8 ${activeDeg}deg ${activeDeg + completedDeg}deg,
+          #dbe5f0 ${activeDeg + completedDeg}deg 360deg
+        )
+      `;
+    }
+
+    function renderSiteList() {
+      const rows = state.filteredRows;
+
+      if (!rows.length) {
+        el.siteList.innerHTML = `<div style="font-size:13px;color:#6b7b90;">표시할 기관 데이터가 없습니다.</div>`;
+        return;
+      }
+
+      el.siteList.innerHTML = rows.map(row => {
+        const progress = getProgressRate(row);
+        const statusText = getRecruitingStatus(row) === "recruiting" ? "등록 진행 기관" : "등록 종료 기관";
+
+        return `
+          <div class="site-item">
+            <div class="site-top">
+              <div class="site-name">● ${row.site}</div>
+              <div class="site-count">${formatNumber(row.enrolled)}</div>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-bar" style="width:${progress}%"></div>
+            </div>
+            <div class="site-meta">
+              <span class="pill">${statusText}</span>
+              <span class="pill">목표 ${formatNumber(row.target)}</span>
+              <span class="pill">등록 ${formatNumber(row.enrolled)}</span>
+              <span class="pill">진행률 ${progress.toFixed(1)}%</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTable() {
+      const rows = state.filteredRows;
+
+      if (!rows.length) {
+        el.tableBody.innerHTML = `
+          <tr>
+            <td colspan="12" style="text-align:center;color:#6b7b90;padding:28px 12px;">
+              표시할 데이터가 없습니다.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      el.tableBody.innerHTML = rows.map(row => {
+        const progress = getProgressRate(row);
+        return `
+          <tr>
+            <td>${row.site}</td>
+            <td>${row.pi || "-"}</td>
+            <td>${formatNumber(row.target)}</td>
+            <td>${formatNumber(row.screened)}</td>
+            <td>${formatNumber(row.consented)}</td>
+            <td>${formatNumber(row.enrolled)}</td>
+            <td>${progress.toFixed(1)}%</td>
+            <td>${formatNumber(row.active)}</td>
+            <td>${formatNumber(row.completed)}</td>
+            <td>${formatNumber(row.dropped)}</td>
+            <td>${formatNumber(row.pending_query)}</td>
+            <td>${row.last_updated || "-"}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderAll() {
+      renderSummary();
+      renderSiteList();
+      renderTable();
+      el.lastSyncText.textContent = `마지막 동기화: ${state.lastSync || "-"}`;
+    }
+
+    async function loadSites() {
+      try {
+        el.uploadStatus.textContent = "Supabase 데이터 불러오는 중...";
+
+        const { data, error } = await supabase
+          .from("study_sites")
+          .select("site, pi, target, screened, consented, enrolled, active, completed, dropped, pending_query, last_updated, display_order")
+          .order("display_order", { ascending: true })
+          .order("site", { ascending: true });
+
+        if (error) throw error;
+
+        const normalized = (data || []).map(normalizeDbRow);
+        state.rawRows = normalized;
+        state.rows = mergeSites(normalized);
+        state.lastSync = new Date().toLocaleString("ko-KR");
+        applyFilters();
+
+        el.uploadStatus.textContent = `불러오기 완료 (${formatNumber(state.rawRows.length)}행 / ${formatNumber(state.rows.length)}기관)`;
+      } catch (error) {
+        console.error(error);
+        el.uploadStatus.textContent = `불러오기 실패: ${error.message}`;
+      }
+    }
+
+    function readExcelFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = e => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+            resolve(json);
+          } catch (err) {
+            reject(err);
+          }
+        };
+
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    async function deleteAllStudySites() {
+      const { error } = await supabase
+        .from("study_sites")
+        .delete()
+        .not("id", "is", null);
+
+      if (error) throw error;
+    }
+
+    async function insertStudySitesInBatches(rows, batchSize = 500) {
+      for (let i = 0; i < rows.length; i += batchSize) {
+        const batch = rows.slice(i, i + batchSize);
+        const { error } = await supabase
+          .from("study_sites")
+          .insert(batch);
+
+        if (error) throw error;
+      }
+    }
+
+    async function uploadExcelToSupabase(file) {
+      try {
+        el.uploadStatus.textContent = "엑셀 읽는 중...";
+
+        const rawRows = await readExcelFile(file);
+        if (!rawRows.length) throw new Error("엑셀에 데이터가 없습니다.");
+
+        const normalizedRows = rawRows
+          .map((row, index) => normalizeExcelRow(row, index))
+          .filter(row => row.site);
+
+        if (!normalizedRows.length) {
+          throw new Error("기관명(site) 컬럼을 찾지 못했거나 유효한 데이터가 없습니다.");
+        }
+
+        el.uploadStatus.textContent = `기존 데이터 삭제 중...`;
+        await deleteAllStudySites();
+
+        el.uploadStatus.textContent = `Supabase 저장 중... (${formatNumber(normalizedRows.length)}행)`;
+        await insertStudySitesInBatches(normalizedRows, 500);
+
+        el.uploadStatus.textContent = `업로드 완료 (${formatNumber(normalizedRows.length)}행 저장)`;
+        await loadSites();
+      } catch (error) {
+        console.error(error);
+        el.uploadStatus.textContent = `업로드 실패: ${error.message}`;
+      }
+    }
+
+    async function resetSupabaseData() {
+      const ok = confirm("study_sites 데이터를 전체 초기화할까요?");
+      if (!ok) return;
+
+      try {
+        el.uploadStatus.textContent = "전체 초기화 중...";
+        await deleteAllStudySites();
+
+        state.rawRows = [];
+        state.rows = [];
+        state.filteredRows = [];
+        state.lastSync = new Date().toLocaleString("ko-KR");
+        renderAll();
+
+        el.uploadStatus.textContent = "전체 초기화 완료";
+      } catch (error) {
+        console.error(error);
+        el.uploadStatus.textContent = `초기화 실패: ${error.message}`;
+      }
+    }
+
+    el.excelFile.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      await uploadExcelToSupabase(file);
+      e.target.value = "";
+    });
+
+    el.reloadBtn.addEventListener("click", loadSites);
+    el.resetBtn.addEventListener("click", resetSupabaseData);
+    el.searchInput.addEventListener("input", applyFilters);
+    el.statusFilter.addEventListener("change", applyFilters);
+    el.sortFilter.addEventListener("change", applyFilters);
+
+    loadSites();
+  </script>
+</body>
 </html>
