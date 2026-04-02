@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SMART-EST 연구 등록 현황</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
       * { box-sizing: border-box; }
 
@@ -631,7 +632,6 @@
   </head>
   <body>
     <div class="wrap">
-
       <div class="page-update-badge" id="updateBadge">최종 업데이트: -</div>
 
       <div class="header-shell">
@@ -657,6 +657,7 @@
           <div class="top-actions-wrap">
             <div class="top-actions">
               <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
+              <button class="btn secondary" onclick="reloadSupabase()">Supabase 새로고침</button>
               <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
             </div>
           </div>
@@ -667,14 +668,14 @@
         <div class="dropzone-title">엑셀 파일 업로드</div>
         <div class="dropzone-sub">
           .xlsx / .xls / .csv 파일을 드래그하거나 선택하면<br>
-          기관별 등록 수, 연구 상태, 요약 지표가 즉시 반영됩니다.
+          Supabase 기관 목록 기준으로 기관별 등록 수, 연구 상태, 요약 지표가 반영됩니다.
         </div>
         <div class="dropzone-row">
           <button class="btn secondary" onclick="document.getElementById('fileInput').click()">파일 선택</button>
           <button class="btn secondary" onclick="loadSampleData()">예시 데이터로 되돌리기</button>
         </div>
         <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none" />
-        <div class="status-box" id="fileStatus">현재: 예시 데이터 표시 중</div>
+        <div class="status-box" id="fileStatus">현재: Supabase 데이터 불러오는 중</div>
 
         <div class="hint-box">
           <div><strong>엑셀 열 이름 추천</strong></div>
@@ -757,16 +758,20 @@
       <div class="note">
         <strong>사용 방법</strong>
         <ul>
-          <li>Netlify에 이 <b>index.html</b> 파일만 올리면 됩니다.</li>
-          <li>사이트가 열리면 엑셀 파일을 드래그하거나 선택합니다.</li>
-          <li>엑셀 안에 <b>기관명</b>, <b>등록수</b>, <b>연구 상태</b> 열이 있으면 자동 반영됩니다.</li>
-          <li>엑셀에서 <b>등록 중단</b>으로 표시된 기관은 기관명과 그래프가 다른 색으로 표시됩니다.</li>
+          <li>Netlify 또는 Cloudflare Pages에 이 <b>index.html</b> 파일만 올리면 됩니다.</li>
+          <li>페이지 로드 시 Supabase의 <b>study_sites</b> 데이터를 먼저 불러옵니다.</li>
+          <li>엑셀 업로드 시 동일한 기관명 기준으로 등록 수와 상태가 덮어써집니다.</li>
+          <li>엑셀에만 있는 기관명은 새 기관으로 추가됩니다.</li>
         </ul>
       </div>
     </div>
 
     <script>
       const FIXED_TOTAL_TARGET = 10000;
+
+      const SUPABASE_URL = "https://coylnollejkngrnreijt.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_XDxYpO-G0UXjdyyknjgCoA_siyjCHlP";
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       const sampleData = [
         {
@@ -787,7 +792,8 @@
         }
       ];
 
-      let studyData = [...sampleData];
+      let studyData = [];
+      let supabaseBaseData = [];
 
       const searchInput = document.getElementById("searchInput");
       const siteFilter = document.getElementById("siteFilter");
@@ -816,6 +822,10 @@
           .toLowerCase()
           .replace(/\s+/g, "")
           .replace(/[()\[\]{}._-]/g, "");
+      }
+
+      function normalizeSiteName(value) {
+        return String(value || "").trim().toLowerCase().replace(/\s+/g, "");
       }
 
       function normalizeStatusValue(value) {
@@ -900,6 +910,25 @@
         return `${y}-${m}-${d}`;
       }
 
+      function createDefaultSiteRow(siteName = "") {
+        return {
+          site: siteName,
+          pi: "",
+          target: 0,
+          screened: 0,
+          consented: 0,
+          enrolled: 0,
+          active: 0,
+          completed: 0,
+          dropped: 0,
+          pendingQuery: 0,
+          siteStatus: "active",
+          siteStatusLabel: "등록 진행",
+          lastUpdatedRaw: null,
+          lastUpdatedDisplay: "-"
+        };
+      }
+
       function parseExcelRows(rows) {
         if (!rows || !rows.length) {
           throw new Error("엑셀에서 읽을 데이터가 없습니다.");
@@ -912,15 +941,11 @@
 
         const siteCol = findColumn(firstRow, ["기관명","기관","site","sitename","병원","센터","center","hospital"]);
         const piCol = findColumn(firstRow, ["pi","연구자","책임연구자","교수","교수명"]);
-        const targetCol = findColumn(firstRow, ["target","목표","목표수","목표등록","목표등록수"]);
+        const targetCol = findColumn(firstRow, ["target","목표","목표수","목표등록","목표등록수","targetenrollment"]);
         const screenedCol = findColumn(firstRow, ["screened","스크리닝","screening"]);
         const consentedCol = findColumn(firstRow, ["consented","동의","동의수"]);
         const enrolledCol = findColumn(firstRow, ["enrolled","등록","등록수","등록환자수","누적등록","등록건수","totalenrolled","totalregistered"]);
-        const statusCol = findColumn(firstRow, [
-          "연구상태","연구상태값","연구상태구분","연구상태여부","연구상태정보","연구상태코드",
-          "연구상태","연구상태","연구상태","연구상태","연구상태",
-          "연구상태","진행상태","상태","등록상태","sitestatus","status","recruitmentstatus","active여부","recruitingstatus"
-        ]);
+        const statusCol = findColumn(firstRow, ["연구상태","진행상태","상태","등록상태","sitestatus","status","recruitmentstatus"]);
         const activeCol = findColumn(firstRow, ["active","진행중","진행중대상자"]);
         const completedCol = findColumn(firstRow, ["completed","완료","완료수"]);
         const droppedCol = findColumn(firstRow, ["dropped","중도탈락","dropout","탈락"]);
@@ -950,7 +975,7 @@
               siteStatus,
               siteStatusLabel: getStatusLabel(siteStatus),
               lastUpdatedRaw: formattedDate ? new Date(formattedDate) : null,
-              lastUpdatedDisplay: formattedDate || formatDateValue(new Date())
+              lastUpdatedDisplay: formattedDate || "-"
             };
           });
 
@@ -959,6 +984,31 @@
         }
 
         return parsed;
+      }
+
+      function mergeExcelIntoStudyData(excelRows) {
+        const baseMap = new Map();
+
+        (supabaseBaseData.length ? supabaseBaseData : studyData).forEach(item => {
+          baseMap.set(normalizeSiteName(item.site), { ...item });
+        });
+
+        excelRows.forEach(item => {
+          const key = normalizeSiteName(item.site);
+          const existing = baseMap.get(key) || createDefaultSiteRow(item.site);
+
+          baseMap.set(key, {
+            ...existing,
+            ...item,
+            site: item.site || existing.site,
+            pi: item.pi || existing.pi,
+            target: item.target || existing.target || 0,
+            siteStatus: item.siteStatus || existing.siteStatus || "active",
+            siteStatusLabel: getStatusLabel(item.siteStatus || existing.siteStatus || "active")
+          });
+        });
+
+        studyData = Array.from(baseMap.values());
       }
 
       function resetSiteOptions() {
@@ -1037,7 +1087,7 @@
 
         const validDates = rows
           .map(row => row.lastUpdatedDisplay)
-          .filter(v => v && String(v).trim() !== "")
+          .filter(v => v && v !== "-" && String(v).trim() !== "")
           .sort();
 
         const latest = validDates.length ? validDates[validDates.length - 1] : "-";
@@ -1135,7 +1185,7 @@
               <td>
                 ${row.target > 0 ? `
                 <div class="progress-box">
-                  <div class="progress"><div class="progress-bar ${inactive ? "inactive" : ""}" style="width:${progress}%"></div></div>
+                  <div class="progress"><div class="progress-bar ${inactive ? "inactive" : ""}" style="width:${Math.min(progress, 100)}%"></div></div>
                   <span style="font-size:13px;color:${inactive ? "#8a7c67" : "#475569"};min-width:38px;text-align:right;">${progress}%</span>
                 </div>` : `<span class="muted">-</span>`}
               </td>
@@ -1161,11 +1211,57 @@
 
       function loadSampleData() {
         studyData = [...sampleData];
+        supabaseBaseData = [...sampleData];
         searchInput.value = "";
         sortFilter.value = "enrolled";
         resetSiteOptions();
         fileStatus.textContent = "현재: 예시 데이터 표시 중";
         renderAll();
+      }
+
+      async function loadSitesFromSupabase() {
+        try {
+          fileStatus.textContent = "현재: Supabase 데이터 불러오는 중";
+          const { data, error } = await supabase
+            .from("study_sites")
+            .select("*")
+            .order("display_order", { ascending: true });
+
+          if (error) throw error;
+
+          supabaseBaseData = (data || []).map(item => ({
+            site: item.site_name || "",
+            pi: item.pi_name || "",
+            target: safeNumber(item.target_enrollment),
+            screened: safeNumber(item.screened),
+            consented: safeNumber(item.consented),
+            enrolled: safeNumber(item.enrolled),
+            active: safeNumber(item.active),
+            completed: safeNumber(item.completed),
+            dropped: safeNumber(item.dropped),
+            pendingQuery: safeNumber(item.pending_query),
+            siteStatus: normalizeStatusValue(item.site_status || "active"),
+            siteStatusLabel: getStatusLabel(normalizeStatusValue(item.site_status || "active")),
+            lastUpdatedRaw: item.updated_at ? new Date(item.updated_at) : null,
+            lastUpdatedDisplay: item.updated_at ? formatDateValue(item.updated_at) : "-"
+          }));
+
+          studyData = supabaseBaseData.length ? [...supabaseBaseData] : [...sampleData];
+          resetSiteOptions();
+          renderAll();
+
+          fileStatus.textContent = supabaseBaseData.length
+            ? `현재: Supabase 적용 완료 (${supabaseBaseData.length}개 기관)`
+            : "현재: Supabase 데이터 없음, 예시 데이터 표시 중";
+        } catch (error) {
+          console.error("Supabase 오류:", error);
+          loadSampleData();
+          fileStatus.textContent = `Supabase 오류: ${error.message}`;
+        }
+      }
+
+      async function reloadSupabase() {
+        await loadSitesFromSupabase();
       }
 
       function loadWorkbookFromFile(file) {
@@ -1178,11 +1274,13 @@
             const worksheet = workbook.Sheets[firstSheetName];
             const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: true });
             const parsed = parseExcelRows(rows);
-            studyData = parsed;
+
+            mergeExcelIntoStudyData(parsed);
+
             searchInput.value = "";
             sortFilter.value = "enrolled";
             resetSiteOptions();
-            fileStatus.textContent = `현재: ${file.name} 적용 완료 (${parsed.length}개 기관)`;
+            fileStatus.textContent = `현재: ${file.name} 적용 완료 (${parsed.length}개 업로드 기관 반영)`;
             renderAll();
           } catch (error) {
             fileStatus.textContent = `오류: ${error.message}`;
@@ -1250,57 +1348,7 @@
       siteFilter.addEventListener("change", renderAll);
       sortFilter.addEventListener("change", renderAll);
 
-      resetSiteOptions();
-      renderAll();
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const SUPABASE_URL = "https://coylnollejkngrnreijt.supabase.co";
-const SUPABASE_KEY = "sb_publishable_XDxYpO-G0UXjdyyknjgCoA_siyjCHlP";
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// 기존 데이터 초기화 (샘플 대신 Supabase 사용)
-let studyData = [];
-
-// Supabase에서 기관 데이터 불러오기
-async function loadSitesFromSupabase() {
-  const { data, error } = await supabase
-    .from('study_sites')
-    .select('*')
-    .order('display_order', { ascending: true });
-
-  if (error) {
-    console.error("Supabase 오류:", error);
-    return;
-  }
-
-  // Supabase 데이터를 기존 구조에 맞게 변환
-  studyData = data.map(item => ({
-    site: item.site_name,
-    pi: "",
-    target: item.target_enrollment || 0,
-    screened: 0,
-    consented: 0,
-    enrolled: 0,
-    active: 0,
-    completed: 0,
-    dropped: 0,
-    pendingQuery: 0,
-    siteStatus: "active",
-    siteStatusLabel: "등록 진행",
-    lastUpdatedRaw: null,
-    lastUpdatedDisplay: "-"
-  }));
-
-  console.log("Supabase 데이터:", studyData);
-
-  resetSiteOptions();
-  renderAll();
-}
-
-// 페이지 로드 시 실행
-loadSitesFromSupabase();
-</script>
+      loadSitesFromSupabase();
+    </script>
   </body>
 </html>
