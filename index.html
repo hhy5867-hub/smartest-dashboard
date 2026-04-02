@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SMART-EST 연구 등록 현황</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+
+      :root {
+        --brand-navy: #003876;
+        --brand-navy-dark: #002b5c;
+        --brand-blue-soft: #eef4fb;
+        --brand-line: #d9e3ef;
+        --brand-bg: #f4f7fb;
+        --brand-accent: #5f7896;
+        --text-main: #1f2937;
+        --text-sub: #5b6573;
+        --text-muted: #7b8794;
+        --card-bg: #ffffff;
+        --table-head: #f6f9fc;
+        --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.07);
+
+        --status-active: #003876;
+        --status-active-soft: #eef4fb;
+        --status-active-line: #d4e2f3;
+
+        --status-hold: #9a8f7a;
+        --status-hold-soft: #f6f3ee;
+        --status-hold-line: #e7ddd0;
+
+        --status-closed: #b0b8c2;
+        --status-closed-soft: #f7f8fa;
+        --status-closed-line: #e7eaee;
+
+        --status-default: #64748b;
+        --status-default-soft: #f8fafc;
+        --status-default-line: #e2e8f0;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, "Noto Sans KR", sans-serif;
+        background:
+          linear-gradient(180deg, #eef3f9 0%, #f7f9fc 180px, var(--brand-bg) 100%);
+        color: var(--text-main);
+      }
+
+      .wrap {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 28px 24px 40px;
+        position: relative;
+      }
+
+      .page-update-badge {
+        position: absolute;
+        top: 4px;
+        right: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid #d5e2f0;
+        color: #5b6573;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+        z-index: 2;
+      }
+
+      .page-update-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--brand-accent);
+      }
+
+      .header-shell {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid var(--brand-line);
+        border-radius: 24px;
+        padding: 24px 26px;
+        box-shadow: var(--shadow-md);
+        margin-top: 18px;
+        margin-bottom: 22px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .eyebrow-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--brand-navy);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+      }
+
+      .badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #ffffff;
+        opacity: 0.9;
+      }
+
+      .org-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--brand-blue-soft);
+        color: var(--brand-navy);
+        border: 1px solid #d4e2f3;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .title-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .title-main {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.2;
+        font-weight: 800;
+        color: var(--brand-navy-dark);
+        letter-spacing: -0.01em;
+      }
+
+      .title-main .est {
+        color: var(--brand-accent);
+      }
+
+      .title-fullterm {
+        font-size: 14px;
+        line-height: 1.4;
+        color: #475569;
+        font-weight: 600;
+      }
+
+      .title-fullterm .accent {
+        color: var(--brand-accent);
+        font-weight: 800;
+      }
+
+      .top-actions-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+      }
+
+      .top-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: 1px solid var(--brand-navy);
+        background: var(--brand-navy);
+        color: white;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 56, 118, 0.12);
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      .btn.secondary {
+        background: #ffffff;
+        color: var(--brand-navy);
+        border: 1px solid #c9d8ea;
+        box-shadow: none;
+      }
+
+      .btn:hover {
+        opacity: 0.96;
+        transform: translateY(-1px);
+      }
+
+      .dropzone {
+        border: 1.5px dashed #9db6d3;
+        background: linear-gradient(180deg, #fbfdff 0%, #f5f9fe 100%);
+        border-radius: 20px;
+        padding: 26px;
+        margin-bottom: 24px;
+        text-align: center;
+        transition: 0.2s ease;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .dropzone.dragover {
+        background: #edf5ff;
+        border-color: var(--brand-navy);
+      }
+
+      .dropzone-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--brand-navy);
+        letter-spacing: -0.01em;
+      }
+
+      .dropzone-sub {
+        margin-top: 8px;
+        font-size: 14px;
+        color: var(--text-sub);
+        line-height: 1.6;
+      }
+
+      .dropzone-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+
+      .status-box {
+        margin-top: 14px;
+        font-size: 14px;
+        color: #334155;
+        font-weight: 600;
+      }
+
+      .hint-box {
+        margin-top: 18px;
+        background: white;
+        border: 1px solid #dbe5f2;
+        border-radius: 14px;
+        padding: 16px;
+        text-align: left;
+        font-size: 13px;
+        color: #475569;
+      }
+
+      .muted { color: var(--text-muted); }
+
+      .grid5 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--brand-line);
+        border-radius: 20px;
+        padding: 22px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .metric-label {
+        font-size: 13px;
+        color: var(--text-sub);
+        font-weight: 700;
+        letter-spacing: 0.01em;
+      }
+
+      .metric-value {
+        font-size: 34px;
+        font-weight: 800;
+        margin-top: 10px;
+        color: var(--brand-navy);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+
+      .metric-sub {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 16px;
+        color: var(--brand-navy-dark);
+        letter-spacing: -0.01em;
+      }
+
+      .filters {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      input, select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #d1d9e6;
+        border-radius: 12px;
+        font-size: 14px;
+        background: white;
+        color: var(--text-main);
+      }
+
+      input:focus, select:focus {
+        outline: none;
+        border-color: #7fa4cf;
+        box-shadow: 0 0 0 4px rgba(0, 56, 118, 0.08);
+      }
+
+      .progress-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .progress {
+        width: 100%;
+        height: 10px;
+        background: #e6edf5;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #003876 0%, #2b6cb0 100%);
+        border-radius: 999px;
+      }
+
+      .progress-bar.inactive {
+        background: linear-gradient(90deg, #a6957c 0%, #c3b39e 100%);
+      }
+
+      .pill {
+        display: inline-block;
+        min-width: 38px;
+        text-align: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eef4fb;
+        color: var(--brand-navy);
+        font-weight: 800;
+        font-size: 12px;
+        border: 1px solid #d8e4f2;
+      }
+
+      .pill.zero {
+        background: #f4f7fb;
+        color: #64748b;
+        border-color: #e2e8f0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1140px;
+      }
+
+      th, td {
+        padding: 13px 10px;
+        border-bottom: 1px solid #e5ebf3;
+        font-size: 14px;
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      th {
+        background: var(--table-head);
+        color: #475569;
+        font-weight: 800;
+        position: sticky;
+        top: 0;
+      }
+
+      td strong {
+        color: var(--brand-navy-dark);
+      }
+
+      .text-right { text-align: right; }
+      .table-wrap { overflow-x: auto; }
+
+      .table-row-inactive {
+        background: linear-gradient(180deg, #fcfaf7 0%, #f8f5ef 100%);
+      }
+
+      .site-name.inactive,
+      .table-row-inactive td,
+      .table-row-inactive td strong {
+        color: #8a7c67 !important;
+      }
+
+      .chart-row {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .bar-item {
+        display: grid;
+        grid-template-columns: 220px 1fr 78px;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .bar-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bar-label.inactive {
+        color: #8a7c67;
+      }
+
+      .bar-track {
+        width: 100%;
+        height: 18px;
+        background: #e6edf5;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        min-width: 2px;
+        background: linear-gradient(90deg, #003876 0%, #4f86c6 100%);
+        border-radius: 999px;
+      }
+
+      .bar-fill.zero {
+        width: 2px !important;
+        background: #cfd8e3;
+      }
+
+      .bar-fill.inactive {
+        background: linear-gradient(90deg, #a6957c 0%, #c9b9a2 100%);
+      }
+
+      .bar-status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex: 0 0 auto;
+      }
+
+      .bar-status-dot.active { background: var(--status-active); }
+      .bar-status-dot.hold { background: var(--status-hold); }
+      .bar-status-dot.closed { background: var(--status-closed); }
+      .bar-status-dot.unknown { background: var(--status-default); }
+
+      .donut-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 0 18px;
+      }
+
+      .donut {
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .donut::after {
+        content: "";
+        position: absolute;
+        inset: 38px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 1px #edf2f7;
+      }
+
+      .donut-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        text-align: center;
+      }
+
+      .donut-center strong {
+        font-size: 28px;
+        color: var(--brand-navy);
+      }
+
+      .legend {
+        display: grid;
+        gap: 10px;
+      }
+
+      .legend-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #fbfdff;
+        border: 1px solid #e7eef7;
+      }
+
+      .legend-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .status-note {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .status-note-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: #fbfdff;
+        border: 1px solid #e7eef7;
+        font-size: 12px;
+        color: #475569;
+        font-weight: 700;
+      }
+
+      .note {
+        margin-top: 24px;
+        background: #ffffff;
+        border: 1px solid #dbe5f2;
+        border-radius: 18px;
+        padding: 18px 20px;
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.7;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .note strong {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--brand-navy-dark);
+        font-size: 15px;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      li { margin: 6px 0; }
+
+      @media (max-width: 1024px) {
+        .grid5, .grid2, .filters { grid-template-columns: 1fr; }
+        .title-main { font-size: 24px; }
+        .title-fullterm { font-size: 13px; }
+        .header-shell { padding: 22px; margin-top: 26px; }
+        .top-actions-wrap {
+          align-items: stretch;
+          width: 100%;
+        }
+        .page-update-badge {
+          right: 24px;
+          top: 0;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page-update-badge {
+          position: static;
+          margin-left: auto;
+          margin-bottom: 8px;
+        }
+        .header-shell {
+          margin-top: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <div class="page-update-badge" id="updateBadge">최종 업데이트: -</div>
+
+      <div class="header-shell">
+        <div class="header">
+          <div>
+            <div class="eyebrow-row">
+              <div class="badge">SMART-EST</div>
+              <div class="org-tag">Enrollment Dashboard</div>
+            </div>
+
+            <div class="title-block">
+              <h1 class="title-main">
+                SMART-<span class="est">EST</span> 연구 등록 현황
+              </h1>
+
+              <div class="title-fullterm">
+                <span class="accent">E</span>ndova<span class="accent">S</span>cular Treatment or
+                <span class="accent">T</span>hrombolytic Therapy
+              </div>
+            </div>
+          </div>
+
+          <div class="top-actions-wrap">
+            <div class="top-actions">
+              <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
+              <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-title">엑셀 파일 업로드</div>
+        <div class="dropzone-sub">
+          .xlsx / .xls / .csv 파일을 드래그하거나 선택하면<br>
+          기관별 등록 수, 연구 상태, 요약 지표가 즉시 반영됩니다.
+        </div>
+        <div class="dropzone-row">
+          <button class="btn secondary" onclick="document.getElementById('fileInput').click()">파일 선택</button>
+          <button class="btn secondary" onclick="loadSampleData()">예시 데이터로 되돌리기</button>
+        </div>
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none" />
+        <div class="status-box" id="fileStatus">현재: 예시 데이터 표시 중</div>
+
+        <div class="hint-box">
+          <div><strong>엑셀 열 이름 추천</strong></div>
+          <div class="muted" style="margin-top:8px; line-height:1.7;">
+            기관명 / site / 기관<br>
+            등록수 / enrolled / 등록 / total enrolled<br>
+            목표수 / target<br>
+            연구상태 / 연구 상태 / 진행상태 / 상태 / site status / status<br>
+            진행중 / active, 완료 / completed, 중도탈락 / dropped, query / pendingQuery<br>
+            최종업데이트 / lastUpdated
+          </div>
+        </div>
+      </div>
+
+      <div class="grid5" id="summaryCards"></div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="section-title">기관별 등록 현황</div>
+          <div class="chart-row" id="barChart"></div>
+          <div class="status-note">
+            <div class="status-note-item"><span class="bar-status-dot active"></span>등록 진행 기관</div>
+            <div class="status-note-item"><span class="bar-status-dot hold"></span>등록 중단 기관</div>
+            <div class="status-note-item"><span class="bar-status-dot closed"></span>등록 종료 기관</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">대상자 상태 비율</div>
+          <div class="donut-wrap">
+            <div id="donut" class="donut">
+              <div class="donut-center">
+                <div style="font-size:13px;color:#6b7280;">총 대상자</div>
+                <strong id="donutTotal">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="filters">
+          <input type="text" id="searchInput" placeholder="기관명 또는 연구자명 검색" />
+          <select id="siteFilter">
+            <option value="all">전체 기관</option>
+          </select>
+          <select id="sortFilter">
+            <option value="enrolled">등록 수 순</option>
+            <option value="screened">스크리닝 수 순</option>
+            <option value="pendingQuery">미해결 Query 순</option>
+            <option value="progress">등록률 순</option>
+          </select>
+        </div>
+
+        <div class="section-title">기관별 상세 현황</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>기관명</th>
+                <th>책임연구자</th>
+                <th class="text-right">목표</th>
+                <th class="text-right">스크리닝</th>
+                <th class="text-right">동의</th>
+                <th class="text-right">등록</th>
+                <th>진행률</th>
+                <th class="text-right">진행중</th>
+                <th class="text-right">완료</th>
+                <th class="text-right">중도탈락</th>
+                <th class="text-right">미해결 Query</th>
+                <th>최종 업데이트</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>사용 방법</strong>
+        <ul>
+          <li>Netlify에 이 <b>index.html</b> 파일만 올리면 됩니다.</li>
+          <li>사이트가 열리면 엑셀 파일을 드래그하거나 선택합니다.</li>
+          <li>엑셀 안에 <b>기관명</b>, <b>등록수</b>, <b>연구 상태</b> 열이 있으면 자동 반영됩니다.</li>
+          <li>엑셀에서 <b>등록 중단</b>으로 표시된 기관은 기관명과 그래프가 다른 색으로 표시됩니다.</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      const FIXED_TOTAL_TARGET = 10000;
+
+      const sampleData = [
+        {
+          site: "예시기관",
+          pi: "",
+          target: 0,
+          screened: 0,
+          consented: 0,
+          enrolled: 0,
+          active: 0,
+          completed: 0,
+          dropped: 0,
+          pendingQuery: 0,
+          siteStatus: "active",
+          siteStatusLabel: "등록 진행",
+          lastUpdatedRaw: new Date("2026-04-01"),
+          lastUpdatedDisplay: "2026-04-01"
+        }
+      ];
+
+      let studyData = [...sampleData];
+
+      const searchInput = document.getElementById("searchInput");
+      const siteFilter = document.getElementById("siteFilter");
+      const sortFilter = document.getElementById("sortFilter");
+      const tableBody = document.getElementById("tableBody");
+      const summaryCards = document.getElementById("summaryCards");
+      const barChart = document.getElementById("barChart");
+      const donut = document.getElementById("donut");
+      const donutTotal = document.getElementById("donutTotal");
+      const legend = document.getElementById("legend");
+      const dropzone = document.getElementById("dropzone");
+      const fileInput = document.getElementById("fileInput");
+      const fileStatus = document.getElementById("fileStatus");
+      const updateBadge = document.getElementById("updateBadge");
+
+      function safeNumber(value) {
+        if (value === null || value === undefined || value === "") return 0;
+        if (typeof value === "number") return isNaN(value) ? 0 : value;
+        const cleaned = String(value).replace(/,/g, "").trim();
+        const num = Number(cleaned);
+        return isNaN(num) ? 0 : num;
+      }
+
+      function normalizeKey(key) {
+        return String(key || "")
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .replace(/[()\[\]{}._-]/g, "");
+      }
+
+      function normalizeStatusValue(value) {
+        const raw = String(value ?? "").trim().toLowerCase();
+        const compact = raw.replace(/\s+/g, "").replace(/[-_/]/g, "");
+
+        if (!compact) return "unknown";
+
+        if (
+          ["active", "open", "ongoing", "recruiting", "진행", "진행중", "등록중", "등록진행", "모집중", "운영중", "오픈"].includes(compact)
+        ) return "active";
+
+        if (
+          ["hold", "paused", "pause", "onhold", "inactive", "중지", "보류", "등록안함", "등록중지", "등록중단", "모집중지", "일시중지", "비활성"].includes(compact)
+        ) return "hold";
+
+        if (
+          ["closed", "close", "ended", "complete", "completed", "종료", "마감", "등록종료", "모집종료", "종결"].includes(compact)
+        ) return "closed";
+
+        return "unknown";
+      }
+
+      function getStatusLabel(status) {
+        if (status === "active") return "등록 진행";
+        if (status === "hold") return "등록 중단";
+        if (status === "closed") return "등록 종료";
+        return "미지정";
+      }
+
+      function isStoppedStatus(status) {
+        return status === "hold";
+      }
+
+      function findColumn(row, candidates) {
+        const entries = Object.keys(row || {});
+        for (const entry of entries) {
+          const normalized = normalizeKey(entry);
+          if (candidates.includes(normalized)) return entry;
+        }
+        return null;
+      }
+
+      function excelSerialToDate(serial) {
+        const parsed = XLSX.SSF.parse_date_code(serial);
+        if (!parsed) return null;
+        return new Date(parsed.y, parsed.m - 1, parsed.d);
+      }
+
+      function isLikelyExcelDateNumber(value) {
+        return typeof value === "number" && value > 20000 && value < 100000;
+      }
+
+      function formatDateValue(value) {
+        if (value === null || value === undefined || value === "") return "";
+        let dateObj = null;
+
+        if (value instanceof Date && !isNaN(value)) {
+          dateObj = new Date(value.getFullYear(), value.getMonth(), value.getDate());
+        } else if (isLikelyExcelDateNumber(value)) {
+          dateObj = excelSerialToDate(value);
+        } else if (typeof value === "string") {
+          const trimmed = value.trim();
+          if (!trimmed) return "";
+          const numeric = Number(trimmed);
+          if (!isNaN(numeric) && isLikelyExcelDateNumber(numeric)) {
+            dateObj = excelSerialToDate(numeric);
+          } else {
+            const normalized = trimmed.replace(/\./g, "-").replace(/\//g, "-");
+            const parsed = new Date(normalized);
+            if (!isNaN(parsed)) {
+              dateObj = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+            }
+          }
+        }
+
+        if (!dateObj || isNaN(dateObj)) return String(value).trim();
+
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
+      function parseExcelRows(rows) {
+        if (!rows || !rows.length) {
+          throw new Error("엑셀에서 읽을 데이터가 없습니다.");
+        }
+
+        const firstRow = rows.find(row => Object.keys(row).length > 0);
+        if (!firstRow) {
+          throw new Error("엑셀에 비어 있지 않은 행이 없습니다.");
+        }
+
+        const siteCol = findColumn(firstRow, ["기관명","기관","site","sitename","병원","센터","center","hospital"]);
+        const piCol = findColumn(firstRow, ["pi","연구자","책임연구자","교수","교수명"]);
+        const targetCol = findColumn(firstRow, ["target","목표","목표수","목표등록","목표등록수"]);
+        const screenedCol = findColumn(firstRow, ["screened","스크리닝","screening"]);
+        const consentedCol = findColumn(firstRow, ["consented","동의","동의수"]);
+        const enrolledCol = findColumn(firstRow, ["enrolled","등록","등록수","등록환자수","누적등록","등록건수","totalenrolled","totalregistered"]);
+        const statusCol = findColumn(firstRow, [
+          "연구상태","연구상태값","연구상태구분","연구상태여부","연구상태정보","연구상태코드",
+          "연구상태","연구상태","연구상태","연구상태","연구상태",
+          "연구상태","진행상태","상태","등록상태","sitestatus","status","recruitmentstatus","active여부","recruitingstatus"
+        ]);
+        const activeCol = findColumn(firstRow, ["active","진행중","진행중대상자"]);
+        const completedCol = findColumn(firstRow, ["completed","완료","완료수"]);
+        const droppedCol = findColumn(firstRow, ["dropped","중도탈락","dropout","탈락"]);
+        const queryCol = findColumn(firstRow, ["pendingquery","query","미해결query","미해결쿼리","쿼리"]);
+        const updatedCol = findColumn(firstRow, ["lastupdated","updated","최종업데이트","업데이트","update"]);
+
+        if (!siteCol || !enrolledCol) {
+          throw new Error("엑셀에서 '기관명' 열과 '등록수' 열을 찾지 못했습니다.");
+        }
+
+        const parsed = rows
+          .filter(row => row[siteCol] !== undefined && row[siteCol] !== null && String(row[siteCol]).trim() !== "")
+          .map(row => {
+            const formattedDate = updatedCol ? formatDateValue(row[updatedCol]) : "";
+            const siteStatus = statusCol ? normalizeStatusValue(row[statusCol]) : "active";
+            return {
+              site: String(row[siteCol]).trim(),
+              pi: piCol ? String(row[piCol] ?? "").trim() : "",
+              target: targetCol ? safeNumber(row[targetCol]) : 0,
+              screened: screenedCol ? safeNumber(row[screenedCol]) : 0,
+              consented: consentedCol ? safeNumber(row[consentedCol]) : 0,
+              enrolled: enrolledCol ? safeNumber(row[enrolledCol]) : 0,
+              active: activeCol ? safeNumber(row[activeCol]) : 0,
+              completed: completedCol ? safeNumber(row[completedCol]) : 0,
+              dropped: droppedCol ? safeNumber(row[droppedCol]) : 0,
+              pendingQuery: queryCol ? safeNumber(row[queryCol]) : 0,
+              siteStatus,
+              siteStatusLabel: getStatusLabel(siteStatus),
+              lastUpdatedRaw: formattedDate ? new Date(formattedDate) : null,
+              lastUpdatedDisplay: formattedDate || formatDateValue(new Date())
+            };
+          });
+
+        if (!parsed.length) {
+          throw new Error("읽어온 기관 데이터가 없습니다.");
+        }
+
+        return parsed;
+      }
+
+      function resetSiteOptions() {
+        siteFilter.innerHTML = '<option value="all">전체 기관</option>';
+        studyData.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.site;
+          option.textContent = item.site;
+          siteFilter.appendChild(option);
+        });
+      }
+
+      function getFilteredData() {
+        const keyword = searchInput.value.trim().toLowerCase();
+        const selectedSite = siteFilter.value;
+        const sortValue = sortFilter.value;
+
+        let rows = studyData.filter(row => {
+          const matchesKeyword =
+            row.site.toLowerCase().includes(keyword) ||
+            String(row.pi || "").toLowerCase().includes(keyword);
+          const matchesSite = selectedSite === "all" || row.site === selectedSite;
+          return matchesKeyword && matchesSite;
+        });
+
+        rows.sort((a, b) => {
+          if (sortValue === "progress") {
+            const aRate = a.target ? a.enrolled / a.target : a.enrolled;
+            const bRate = b.target ? b.enrolled / b.target : b.enrolled;
+            return bRate - aRate;
+          }
+          return (b[sortValue] || 0) - (a[sortValue] || 0);
+        });
+
+        return rows;
+      }
+
+      function getTotals(rows) {
+        return rows.reduce((acc, cur) => {
+          acc.target += cur.target;
+          acc.screened += cur.screened;
+          acc.consented += cur.consented;
+          acc.enrolled += cur.enrolled;
+          acc.active += cur.active;
+          acc.completed += cur.completed;
+          acc.dropped += cur.dropped;
+          acc.pendingQuery += cur.pendingQuery;
+          acc.siteCount += 1;
+          if (cur.siteStatus === "active") acc.activeSites += 1;
+          if (cur.siteStatus === "hold") acc.holdSites += 1;
+          if (cur.siteStatus === "closed") acc.closedSites += 1;
+          if (cur.siteStatus === "unknown") acc.unknownSites += 1;
+          return acc;
+        }, {
+          target: 0,
+          screened: 0,
+          consented: 0,
+          enrolled: 0,
+          active: 0,
+          completed: 0,
+          dropped: 0,
+          pendingQuery: 0,
+          siteCount: 0,
+          activeSites: 0,
+          holdSites: 0,
+          closedSites: 0,
+          unknownSites: 0
+        });
+      }
+
+      function updateLastUpdatedBadge(rows) {
+        if (!rows || !rows.length) {
+          updateBadge.textContent = "최종 업데이트: -";
+          return;
+        }
+
+        const validDates = rows
+          .map(row => row.lastUpdatedDisplay)
+          .filter(v => v && String(v).trim() !== "")
+          .sort();
+
+        const latest = validDates.length ? validDates[validDates.length - 1] : "-";
+        updateBadge.textContent = `최종 업데이트: ${latest}`;
+      }
+
+      function renderSummary(rows, totals) {
+        const rate = FIXED_TOTAL_TARGET ? Math.round((totals.enrolled / FIXED_TOTAL_TARGET) * 100) : 0;
+        const cards = [
+          ["참여 기관 수", totals.siteCount, `등록 진행 ${totals.activeSites} / 등록 중단 ${totals.holdSites}`],
+          ["총 등록 목표", FIXED_TOTAL_TARGET, "전체 기관 등록 목표(경쟁 모집)"],
+          ["총 등록 수", totals.enrolled, FIXED_TOTAL_TARGET ? `목표 대비 ${rate}%` : "업로드된 등록 합계"],
+          ["진행 중 대상자", totals.active, "현재 follow-up 포함"],
+          ["미해결 Query", totals.pendingQuery, "기관 확인 필요 건수"]
+        ];
+
+        summaryCards.innerHTML = cards.map(card => `
+          <div class="card">
+            <div class="metric-label">${card[0]}</div>
+            <div class="metric-value">${Number(card[1]).toLocaleString()}</div>
+            <div class="metric-sub">${card[2]}</div>
+          </div>
+        `).join("");
+      }
+
+      function renderBarChart(rows) {
+        const maxEnrolled = Math.max(...rows.map(item => item.enrolled), 0);
+        const denominator = maxEnrolled > 0 ? maxEnrolled : 1;
+
+        barChart.innerHTML = rows.map(row => {
+          const percent = row.enrolled > 0 ? Math.max(2, Math.round((row.enrolled / denominator) * 100)) : 2;
+          const inactive = isStoppedStatus(row.siteStatus);
+          const fillClasses = [
+            row.enrolled === 0 ? "zero" : "",
+            inactive ? "inactive" : ""
+          ].filter(Boolean).join(" ");
+          return `
+            <div class="bar-item">
+              <div class="bar-label ${inactive ? "inactive" : ""}">
+                <span class="bar-status-dot ${row.siteStatus}"></span>
+                <span>${row.site}</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill ${fillClasses}" style="width:${percent}%"></div>
+              </div>
+              <div style="text-align:right;font-weight:800;color:${inactive ? "#8a7c67" : "#003876"};">${row.enrolled.toLocaleString()}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderDonut(totals) {
+        const totalStatus = totals.active + totals.completed + totals.dropped;
+        const activePercent = totalStatus ? (totals.active / totalStatus) * 100 : 0;
+        const completedPercent = totalStatus ? (totals.completed / totalStatus) * 100 : 0;
+
+        donut.style.background = `conic-gradient(
+          #003876 0% ${activePercent}%,
+          #7ea7cf ${activePercent}% ${activePercent + completedPercent}%,
+          #d7e1ec ${activePercent + completedPercent}% 100%
+        )`;
+
+        donutTotal.textContent = totalStatus.toLocaleString();
+
+        legend.innerHTML = `
+          <div class="legend-item">
+            <div class="legend-left"><span class="dot" style="background:#003876"></span><span>진행중</span></div>
+            <strong>${totals.active.toLocaleString()}</strong>
+          </div>
+          <div class="legend-item">
+            <div class="legend-left"><span class="dot" style="background:#7ea7cf"></span><span>완료</span></div>
+            <strong>${totals.completed.toLocaleString()}</strong>
+          </div>
+          <div class="legend-item">
+            <div class="legend-left"><span class="dot" style="background:#d7e1ec"></span><span>중도탈락</span></div>
+            <strong>${totals.dropped.toLocaleString()}</strong>
+          </div>
+        `;
+      }
+
+      function renderTable(rows) {
+        tableBody.innerHTML = rows.map((row) => {
+          const progress = row.target ? Math.round((row.enrolled / row.target) * 100) : 0;
+          const queryClass = row.pendingQuery === 0 ? "pill zero" : "pill";
+          const inactive = isStoppedStatus(row.siteStatus);
+          const rowClass = inactive ? "table-row-inactive" : "";
+          return `
+            <tr class="${rowClass}">
+              <td><strong class="site-name ${inactive ? "inactive" : ""}">${row.site}</strong></td>
+              <td>${row.pi || "-"}</td>
+              <td class="text-right">${row.target.toLocaleString()}</td>
+              <td class="text-right">${row.screened.toLocaleString()}</td>
+              <td class="text-right">${row.consented.toLocaleString()}</td>
+              <td class="text-right"><strong>${row.enrolled.toLocaleString()}</strong></td>
+              <td>
+                ${row.target > 0 ? `
+                <div class="progress-box">
+                  <div class="progress"><div class="progress-bar ${inactive ? "inactive" : ""}" style="width:${progress}%"></div></div>
+                  <span style="font-size:13px;color:${inactive ? "#8a7c67" : "#475569"};min-width:38px;text-align:right;">${progress}%</span>
+                </div>` : `<span class="muted">-</span>`}
+              </td>
+              <td class="text-right">${row.active.toLocaleString()}</td>
+              <td class="text-right">${row.completed.toLocaleString()}</td>
+              <td class="text-right">${row.dropped.toLocaleString()}</td>
+              <td class="text-right"><span class="${queryClass}">${row.pendingQuery.toLocaleString()}</span></td>
+              <td>${row.lastUpdatedDisplay || "-"}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      function renderAll() {
+        const rows = getFilteredData();
+        const totals = getTotals(rows);
+        renderSummary(rows, totals);
+        renderBarChart(rows);
+        renderDonut(totals);
+        renderTable(rows);
+        updateLastUpdatedBadge(rows);
+      }
+
+      function loadSampleData() {
+        studyData = [...sampleData];
+        searchInput.value = "";
+        sortFilter.value = "enrolled";
+        resetSiteOptions();
+        fileStatus.textContent = "현재: 예시 데이터 표시 중";
+        renderAll();
+      }
+
+      function loadWorkbookFromFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array", cellDates: true });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: true });
+            const parsed = parseExcelRows(rows);
+            studyData = parsed;
+            searchInput.value = "";
+            sortFilter.value = "enrolled";
+            resetSiteOptions();
+            fileStatus.textContent = `현재: ${file.name} 적용 완료 (${parsed.length}개 기관)`;
+            renderAll();
+          } catch (error) {
+            fileStatus.textContent = `오류: ${error.message}`;
+            alert(`엑셀 반영에 실패했습니다.\n\n${error.message}`);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      function downloadCSV() {
+        const rows = getFilteredData();
+        const headers = ["기관명","책임연구자","목표","스크리닝","동의","등록","연구 상태","진행중","완료","중도탈락","미해결 Query","최종 업데이트"];
+        const csvRows = rows.map(row => [
+          row.site,
+          row.pi,
+          row.target,
+          row.screened,
+          row.consented,
+          row.enrolled,
+          row.siteStatusLabel,
+          row.active,
+          row.completed,
+          row.dropped,
+          row.pendingQuery,
+          row.lastUpdatedDisplay
+        ]);
+
+        const csvContent = [headers, ...csvRows]
+          .map(line => line.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+          .join("\n");
+
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "SMART-EST_등록현황.csv";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+      });
+
+      dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+      });
+
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if (file) loadWorkbookFromFile(file);
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) loadWorkbookFromFile(file);
+      });
+
+      searchInput.addEventListener("input", renderAll);
+      siteFilter.addEventListener("change", renderAll);
+      sortFilter.addEventListener("change", renderAll);
+
+      resetSiteOptions();
+      renderAll();
+    </script>
+  </body>
+</html>
