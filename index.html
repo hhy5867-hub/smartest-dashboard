@@ -6,970 +6,189 @@
   <title>SMART-EST 연구 등록현황</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Pretendard", "Noto Sans KR", sans-serif;
-      background: #f4f7fb;
-      color: #1f2d3d;
-    }
-    .wrap {
-      max-width: 1400px;
-      margin: 24px auto 48px;
-      padding: 0 20px;
-    }
-    .header {
-      background: #ffffff;
-      border: 1px solid #d8e2f0;
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-      margin-bottom: 18px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: #e8f0fb;
-      color: #0d4f9a;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    .title {
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.25;
-      font-weight: 800;
-      color: #0f172a;
-    }
-    .subtitle {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #5b6b80;
-      line-height: 1.6;
-    }
-    .control-panel {
-      background: #ffffff;
-      border: 1px solid #d8e2f0;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-      margin-bottom: 18px;
-    }
-    .control-title {
-      font-size: 15px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      color: #0f172a;
-    }
-    .control-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .btn {
-      border: none;
-      background: #0d4f9a;
-      color: #fff;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn.secondary {
-      background: #eef4fb;
-      color: #0d4f9a;
-      border: 1px solid #c9d9ee;
-    }
-    .btn.danger {
-      background: #c62828;
-    }
-    .status-box {
-      font-size: 13px;
-      color: #5b6b80;
-      background: #f8fbff;
-      border: 1px solid #d8e2f0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      line-height: 1.6;
-      white-space: pre-line;
-      width: 100%;
-    }
-    .sheet-guide {
-      margin-top: 10px;
-      font-size: 12px;
-      line-height: 1.7;
-      color: #536579;
-      background: #f8fbff;
-      border: 1px dashed #bfd0e6;
-      padding: 12px 14px;
-      border-radius: 12px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .card {
-      background: #fff;
-      border: 1px solid #d8e2f0;
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
-      min-height: 118px;
-    }
-    .card .label {
-      font-size: 12px;
-      color: #5b6b80;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-    .card .value {
-      font-size: 24px;
-      font-weight: 800;
-      color: #0d4f9a;
-      margin-bottom: 8px;
-    }
-    .card .desc {
-      font-size: 12px;
-      color: #6b7b90;
-      line-height: 1.5;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .panel {
-      background: #fff;
-      border: 1px solid #d8e2f0;
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
-    }
-    .panel h3 {
-      margin: 0 0 14px;
-      font-size: 20px;
-      color: #0f172a;
-    }
-    .site-item {
-      margin-bottom: 18px;
-    }
-    .site-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 14px;
-      margin-bottom: 8px;
-      align-items: center;
-    }
-    .site-name {
-      font-weight: 700;
-      color: #0f172a;
-    }
-    .site-count {
-      font-weight: 800;
-      color: #0d4f9a;
-    }
-    .progress-wrap {
-      width: 100%;
-      height: 14px;
-      background: #e8eef6;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #0d4f9a, #4c8fd6);
-      border-radius: 999px;
-    }
-    .site-meta {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .pill {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #f1f6fc;
-      border: 1px solid #d8e2f0;
-      font-size: 12px;
-      color: #4b5c71;
-      font-weight: 700;
-    }
-    .donut-wrap {
-      width: 220px;
-      height: 220px;
-      margin: 0 auto 14px;
-      position: relative;
-    }
-    .donut {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: conic-gradient(#0d4f9a 0deg, #0d4f9a 0deg, #dce7f3 0deg 360deg);
-      position: relative;
-    }
-    .donut::after {
-      content: "";
-      position: absolute;
-      inset: 28px;
-      background: #fff;
-      border-radius: 50%;
-      box-shadow: inset 0 0 0 1px #e3ebf5;
-    }
-    .donut-center {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      z-index: 2;
-      text-align: center;
-    }
-    .donut-center .small {
-      font-size: 12px;
-      color: #6b7b90;
-      margin-bottom: 4px;
-    }
-    .donut-center .big {
-      font-size: 16px;
-      font-weight: 800;
-      color: #0f172a;
-    }
-    .legend {
-      display: grid;
-      gap: 8px;
-    }
-    .legend-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #d8e2f0;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 13px;
-    }
-    .legend-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    .dot.active { background: #0d4f9a; }
-    .dot.completed { background: #9fc2e8; }
-    .dot.dropped { background: #dbe5f0; }
-    .filters {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr 0.8fr;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .filters input,
-    .filters select {
-      width: 100%;
-      height: 44px;
-      border: 1px solid #cfdbea;
-      border-radius: 12px;
-      padding: 0 14px;
-      background: #fff;
-      font-size: 14px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 1000px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-    }
-    thead th {
-      background: #f4f8fc;
-      color: #42556b;
-      font-size: 12px;
-      font-weight: 800;
-      padding: 12px 10px;
-      border-bottom: 1px solid #dbe5f0;
-      white-space: nowrap;
-    }
-    tbody td {
-      font-size: 13px;
-      padding: 12px 10px;
-      border-bottom: 1px solid #edf2f8;
-      white-space: nowrap;
-      color: #223245;
-    }
-    tbody tr:hover {
-      background: #fbfdff;
-    }
-    .footer-note {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #6b7b90;
-    }
-
-    @media (max-width: 1200px) {
-      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 768px) {
-      .cards { grid-template-columns: 1fr; }
-      .filters { grid-template-columns: 1fr; }
-      .title { font-size: 22px; }
-    }
-  </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="header">
-      <div class="badge">SMART-EST Dashboard</div>
-      <h1 class="title">SMART-EST 연구 등록현황</h1>
-      <div class="subtitle">
-        Endovascular Treatment or Thrombolytic Therapy 기반 연구 등록 현황 대시보드
-      </div>
-    </section>
+<script>
+const SUPABASE_URL = "https://coylnollejkngrnreijt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XDxYpO-G0UXjdyyknjgCoA_siyjCHlP";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <section class="control-panel">
-      <div class="control-title">엑셀 업로드 및 자동 반영</div>
-      <div class="control-row">
-        <label for="excelFile" class="btn">엑셀 업로드</label>
-        <input type="file" id="excelFile" accept=".xlsx,.xls" />
-        <button class="btn secondary" id="reloadBtn">DB 다시 불러오기</button>
-        <button class="btn danger" id="resetBtn">전체 초기화</button>
-      </div>
-      <div class="status-box" id="uploadStatus">대기 중</div>
-      <div class="sheet-guide">
-엑셀 컬럼명 예시
-site / 기관명
-pi / 책임연구자
-target / 목표
-screened / 스크리닝
-consented / 동의
-enrolled / 등록
-active / 진행중
-completed / 완료
-dropped / 중도탈락
-pendingQuery / pending_query / 미해결 Query
-lastUpdated / last_updated / 최종업데이트
-displayOrder / display_order
-      </div>
-    </section>
+const state = {
+  rawRows: [],
+  rows: [],
+  filteredRows: [],
+  totalTargetFixed: 10000,
+  lastSync: null
+};
 
-    <section class="cards">
-      <div class="card">
-        <div class="label">참여 기관 수</div>
-        <div class="value" id="siteCount">0</div>
-        <div class="desc" id="siteCountDesc">등록 진행 0 / 등록 종료 0</div>
-      </div>
-      <div class="card">
-        <div class="label">총 등록 목표</div>
-        <div class="value" id="totalTarget">10,000</div>
-        <div class="desc">전체 기관 등록 목표(경쟁 모집)</div>
-      </div>
-      <div class="card">
-        <div class="label">총 등록 수</div>
-        <div class="value" id="totalEnrolled">0</div>
-        <div class="desc" id="enrollmentRate">목표 대비 0%</div>
-      </div>
-      <div class="card">
-        <div class="label">진행 중 대상자</div>
-        <div class="value" id="totalActive">0</div>
-        <div class="desc">현재 follow-up 포함</div>
-      </div>
-      <div class="card">
-        <div class="label">미해결 Query</div>
-        <div class="value" id="totalQuery">0</div>
-        <div class="desc">기관 확인 필요 건수</div>
-      </div>
-    </section>
+function numberOrZero(v) {
+  if (v === null || v === undefined || v === "") return 0;
+  const n = Number(String(v).replace(/,/g, "").trim());
+  return Number.isFinite(n) ? n : 0;
+}
 
-    <section class="grid">
-      <div class="panel">
-        <h3>기관별 등록 현황</h3>
-        <div id="siteList"></div>
-      </div>
+function safeText(v) {
+  return (v ?? "").toString().trim();
+}
 
-      <div class="panel">
-        <h3>대상자 상태 비율</h3>
-        <div class="donut-wrap">
-          <div class="donut" id="statusDonut"></div>
-          <div class="donut-center">
-            <div class="small">총 대상자</div>
-            <div class="big" id="donutTotal">0</div>
-          </div>
-        </div>
-        <div class="legend">
-          <div class="legend-item">
-            <div class="legend-left">
-              <span class="dot active"></span><span>진행중</span>
-            </div>
-            <strong id="legendActive">0</strong>
-          </div>
-          <div class="legend-item">
-            <div class="legend-left">
-              <span class="dot completed"></span><span>완료</span>
-            </div>
-            <strong id="legendCompleted">0</strong>
-          </div>
-          <div class="legend-item">
-            <div class="legend-left">
-              <span class="dot dropped"></span><span>중도탈락</span>
-            </div>
-            <strong id="legendDropped">0</strong>
-          </div>
-        </div>
-      </div>
-    </section>
+function normalizeDate(v) {
+  if (!v) return "-";
+  const d = new Date(v);
+  if (!isNaN(d.getTime())) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  return "-";
+}
 
-    <section class="panel">
-      <div class="filters">
-        <input type="text" id="searchInput" placeholder="기관명 또는 책임연구자 검색" />
-        <select id="statusFilter">
-          <option value="all">전체 기관</option>
-          <option value="recruiting">등록 진행 기관</option>
-          <option value="closed">등록 종료 기관</option>
-        </select>
-        <select id="sortFilter">
-          <option value="display_order_asc">표시 순서 순</option>
-          <option value="enrolled_desc">등록 수 순</option>
-          <option value="target_desc">목표 순</option>
-          <option value="site_asc">기관명 순</option>
-          <option value="updated_desc">최종 업데이트 최신순</option>
-        </select>
-      </div>
+function normalizeDbRow(raw) {
+  return {
+    site: safeText(raw.site_name),
+    pi: safeText(raw.site_pi || "-"),
+    target: numberOrZero(raw.target_enrollment),
+    screened: 0,
+    consented: numberOrZero(raw.consented),
+    enrolled: numberOrZero(raw.enrolled),
+    active: raw.site_active === "active" ? numberOrZero(raw.enrolled) : 0,
+    completed: numberOrZero(raw.completed),
+    dropped: numberOrZero(raw.dropped),
+    pending_query: numberOrZero(raw.pening_query),
+    last_updated: normalizeDate(raw.last_updated),
+    display_order: numberOrZero(raw.display_order)
+  };
+}
 
-      <h3 style="margin-bottom: 14px;">기관별 상세 현황</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>기관명</th>
-              <th>책임연구자</th>
-              <th>목표</th>
-              <th>스크리닝</th>
-              <th>동의</th>
-              <th>등록</th>
-              <th>진행률</th>
-              <th>진행중</th>
-              <th>완료</th>
-              <th>중도탈락</th>
-              <th>미해결 Query</th>
-              <th>최종 업데이트</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-      <div class="footer-note" id="lastSyncText">마지막 동기화: -</div>
-    </section>
-  </div>
+function mergeSites(rows) {
+  const map = new Map();
 
-  <script>
-    const SUPABASE_URL = "https://coylnollejkngrnreijt.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_XDxYpO-G0UXjdyyknjgCoA_siyjCHlP";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  rows.forEach(row => {
+    if (!row.site) return;
 
-    const state = {
-      rawRows: [],
-      rows: [],
-      filteredRows: [],
-      totalTargetFixed: 10000,
-      lastSync: null
+    if (!map.has(row.site)) {
+      map.set(row.site, { ...row });
+    } else {
+      const item = map.get(row.site);
+      item.target += row.target;
+      item.consented += row.consented;
+      item.enrolled += row.enrolled;
+      item.active += row.active;
+      item.completed += row.completed;
+      item.dropped += row.dropped;
+      item.pending_query += row.pending_query;
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+async function loadSites() {
+  const { data, error } = await supabase
+    .from("study_sites")
+    .select(`
+      site_name,
+      site_pi,
+      target_enrollment,
+      consented,
+      enrolled,
+      completed,
+      dropped,
+      pening_query,
+      last_updated,
+      display_order,
+      site_active
+    `)
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  const normalized = (data || []).map(normalizeDbRow);
+  state.rawRows = normalized;
+  state.rows = mergeSites(normalized);
+  state.lastSync = new Date().toLocaleString("ko-KR");
+
+  console.log(state.rows);
+}
+
+async function deleteAllStudySites() {
+  const { error } = await supabase
+    .from("study_sites")
+    .delete()
+    .not("site_id", "is", null);
+
+  if (error) throw error;
+}
+
+async function insertStudySitesInBatches(rows, batchSize = 500) {
+  for (let i = 0; i < rows.length; i += batchSize) {
+    const batch = rows.slice(i, i + batchSize);
+    const { error } = await supabase
+      .from("study_sites")
+      .insert(batch);
+
+    if (error) throw error;
+  }
+}
+
+function normalizeExcelRow(raw, index) {
+  return {
+    site_name: raw.site,
+    site_pi: raw.pi,
+    target_enrollment: numberOrZero(raw.target),
+    consented: numberOrZero(raw.consented),
+    enrolled: numberOrZero(raw.enrolled),
+    completed: numberOrZero(raw.completed),
+    dropped: numberOrZero(raw.dropped),
+    pening_query: numberOrZero(raw.pending_query),
+    last_updated: normalizeDate(raw.last_updated),
+    display_order: index + 1,
+    site_active: raw.active > 0 ? "active" : "inactive"
+  };
+}
+
+function readExcelFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = e => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        resolve(json);
+      } catch (err) {
+        reject(err);
+      }
     };
 
-    const el = {
-      excelFile: document.getElementById("excelFile"),
-      uploadStatus: document.getElementById("uploadStatus"),
-      reloadBtn: document.getElementById("reloadBtn"),
-      resetBtn: document.getElementById("resetBtn"),
-
-      siteCount: document.getElementById("siteCount"),
-      siteCountDesc: document.getElementById("siteCountDesc"),
-      totalTarget: document.getElementById("totalTarget"),
-      totalEnrolled: document.getElementById("totalEnrolled"),
-      enrollmentRate: document.getElementById("enrollmentRate"),
-      totalActive: document.getElementById("totalActive"),
-      totalQuery: document.getElementById("totalQuery"),
-
-      siteList: document.getElementById("siteList"),
-      tableBody: document.getElementById("tableBody"),
-
-      statusDonut: document.getElementById("statusDonut"),
-      donutTotal: document.getElementById("donutTotal"),
-      legendActive: document.getElementById("legendActive"),
-      legendCompleted: document.getElementById("legendCompleted"),
-      legendDropped: document.getElementById("legendDropped"),
-
-      searchInput: document.getElementById("searchInput"),
-      statusFilter: document.getElementById("statusFilter"),
-      sortFilter: document.getElementById("sortFilter"),
-      lastSyncText: document.getElementById("lastSyncText")
-    };
-
-    function numberOrZero(v) {
-      if (v === null || v === undefined || v === "") return 0;
-      const n = Number(String(v).replace(/,/g, "").trim());
-      return Number.isFinite(n) ? n : 0;
-    }
-
-    function safeText(v) {
-      return (v ?? "").toString().trim();
-    }
-
-    function formatNumber(v) {
-      return Number(v || 0).toLocaleString("ko-KR");
-    }
-
-    function normalizeDate(v) {
-      if (!v) return "-";
-
-      if (typeof v === "string") {
-        const text = v.trim();
-        if (!text) return "-";
-        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
-        if (/^\d{4}\.\d{2}\.\d{2}$/.test(text)) return text.replace(/\./g, "-");
-        if (/^\d{4}\/\d{2}\/\d{2}$/.test(text)) return text.replace(/\//g, "-");
-        const d = new Date(text);
-        if (!isNaN(d.getTime())) {
-          const yyyy = d.getFullYear();
-          const mm = String(d.getMonth() + 1).padStart(2, "0");
-          const dd = String(d.getDate()).padStart(2, "0");
-          return `${yyyy}-${mm}-${dd}`;
-        }
-        return text;
-      }
-
-      if (v instanceof Date && !isNaN(v.getTime())) {
-        const yyyy = v.getFullYear();
-        const mm = String(v.getMonth() + 1).padStart(2, "0");
-        const dd = String(v.getDate()).padStart(2, "0");
-        return `${yyyy}-${mm}-${dd}`;
-      }
-
-      return "-";
-    }
-
-    function detectKey(row, candidates) {
-      const keys = Object.keys(row || {});
-      for (const candidate of candidates) {
-        const found = keys.find(k => k.toLowerCase().replace(/[\s_]/g, "") === candidate.toLowerCase().replace(/[\s_]/g, ""));
-        if (found) return found;
-      }
-      return null;
-    }
-
-    function normalizeExcelRow(raw, index) {
-      const siteKey = detectKey(raw, ["site", "기관", "기관명"]);
-      const piKey = detectKey(raw, ["pi", "책임연구자"]);
-      const targetKey = detectKey(raw, ["target", "목표"]);
-      const screenedKey = detectKey(raw, ["screened", "스크리닝"]);
-      const consentedKey = detectKey(raw, ["consented", "동의"]);
-      const enrolledKey = detectKey(raw, ["enrolled", "등록"]);
-      const activeKey = detectKey(raw, ["active", "진행중"]);
-      const completedKey = detectKey(raw, ["completed", "완료"]);
-      const droppedKey = detectKey(raw, ["dropped", "중도탈락"]);
-      const pendingQueryKey = detectKey(raw, ["pendingquery", "pending_query", "query", "미해결query", "미해결쿼리"]);
-      const lastUpdatedKey = detectKey(raw, ["lastupdated", "last_updated", "최종업데이트", "최종업데이트일", "최종업데이트날짜", "최종 업데이트"]);
-      const displayOrderKey = detectKey(raw, ["displayorder", "display_order", "순서", "표시순서"]);
-
-      return {
-        site: safeText(raw[siteKey]),
-        pi: safeText(raw[piKey] || "-"),
-        target: numberOrZero(raw[targetKey]),
-        screened: numberOrZero(raw[screenedKey]),
-        consented: numberOrZero(raw[consentedKey]),
-        enrolled: numberOrZero(raw[enrolledKey]),
-        active: numberOrZero(raw[activeKey]),
-        completed: numberOrZero(raw[completedKey]),
-        dropped: numberOrZero(raw[droppedKey]),
-        pending_query: numberOrZero(raw[pendingQueryKey]),
-        last_updated: normalizeDate(raw[lastUpdatedKey]),
-        display_order: raw[displayOrderKey] === undefined || raw[displayOrderKey] === null || raw[displayOrderKey] === ""
-          ? index + 1
-          : numberOrZero(raw[displayOrderKey])
-      };
-    }
-
-    function normalizeDbRow(raw) {
-      return {
-        site: safeText(raw.site),
-        pi: safeText(raw.pi || "-"),
-        target: numberOrZero(raw.target),
-        screened: numberOrZero(raw.screened),
-        consented: numberOrZero(raw.consented),
-        enrolled: numberOrZero(raw.enrolled),
-        active: numberOrZero(raw.active),
-        completed: numberOrZero(raw.completed),
-        dropped: numberOrZero(raw.dropped),
-        pending_query: numberOrZero(raw.pending_query),
-        last_updated: normalizeDate(raw.last_updated),
-        display_order: numberOrZero(raw.display_order)
-      };
-    }
-
-    function mergeSites(rows) {
-      const map = new Map();
-
-      rows.forEach(row => {
-        if (!row.site) return;
-
-        if (!map.has(row.site)) {
-          map.set(row.site, {
-            site: row.site,
-            pi: row.pi || "-",
-            target: 0,
-            screened: 0,
-            consented: 0,
-            enrolled: 0,
-            active: 0,
-            completed: 0,
-            dropped: 0,
-            pending_query: 0,
-            last_updated: "-",
-            display_order: row.display_order || 999999
-          });
-        }
-
-        const item = map.get(row.site);
-        item.pi = item.pi === "-" && row.pi ? row.pi : item.pi;
-        item.target += row.target;
-        item.screened += row.screened;
-        item.consented += row.consented;
-        item.enrolled += row.enrolled;
-        item.active += row.active;
-        item.completed += row.completed;
-        item.dropped += row.dropped;
-        item.pending_query += row.pending_query;
-
-        if ((row.display_order || 999999) < item.display_order) {
-          item.display_order = row.display_order || 999999;
-        }
-
-        if (row.last_updated && row.last_updated !== "-") {
-          if (item.last_updated === "-" || row.last_updated > item.last_updated) {
-            item.last_updated = row.last_updated;
-          }
-        }
-      });
-
-      return Array.from(map.values());
-    }
-
-    function getRecruitingStatus(row) {
-      return row.target > row.enrolled ? "recruiting" : "closed";
-    }
-
-    function getProgressRate(row) {
-      if (!row.target || row.target <= 0) return 0;
-      return Math.min((row.enrolled / row.target) * 100, 100);
-    }
-
-    function applyFilters() {
-      const q = el.searchInput.value.trim().toLowerCase();
-      const status = el.statusFilter.value;
-      const sort = el.sortFilter.value;
-
-      let rows = [...state.rows];
-
-      if (q) {
-        rows = rows.filter(r =>
-          r.site.toLowerCase().includes(q) ||
-          (r.pi || "").toLowerCase().includes(q)
-        );
-      }
-
-      if (status !== "all") {
-        rows = rows.filter(r => getRecruitingStatus(r) === status);
-      }
-
-      rows.sort((a, b) => {
-        switch (sort) {
-          case "display_order_asc":
-            return (a.display_order || 999999) - (b.display_order || 999999);
-          case "target_desc":
-            return b.target - a.target;
-          case "site_asc":
-            return a.site.localeCompare(b.site, "ko");
-          case "updated_desc":
-            return (b.last_updated || "").localeCompare(a.last_updated || "");
-          case "enrolled_desc":
-          default:
-            return b.enrolled - a.enrolled;
-        }
-      });
-
-      state.filteredRows = rows;
-      renderAll();
-    }
-
-    function renderSummary() {
-      const rows = state.rows;
-
-      const totalSites = rows.length;
-      const recruitingSites = rows.filter(r => getRecruitingStatus(r) === "recruiting").length;
-      const closedSites = rows.filter(r => getRecruitingStatus(r) === "closed").length;
-
-      const totalEnrolled = rows.reduce((sum, r) => sum + r.enrolled, 0);
-      const totalActive = rows.reduce((sum, r) => sum + r.active, 0);
-      const totalCompleted = rows.reduce((sum, r) => sum + r.completed, 0);
-      const totalDropped = rows.reduce((sum, r) => sum + r.dropped, 0);
-      const totalQuery = rows.reduce((sum, r) => sum + r.pending_query, 0);
-
-      const enrolledRate = state.totalTargetFixed > 0
-        ? ((totalEnrolled / state.totalTargetFixed) * 100).toFixed(1)
-        : "0.0";
-
-      el.siteCount.textContent = formatNumber(totalSites);
-      el.siteCountDesc.textContent = `등록 진행 ${formatNumber(recruitingSites)} / 등록 종료 ${formatNumber(closedSites)}`;
-      el.totalTarget.textContent = formatNumber(state.totalTargetFixed);
-      el.totalEnrolled.textContent = formatNumber(totalEnrolled);
-      el.enrollmentRate.textContent = `목표 대비 ${enrolledRate}%`;
-      el.totalActive.textContent = formatNumber(totalActive);
-      el.totalQuery.textContent = formatNumber(totalQuery);
-
-      const totalStatus = totalActive + totalCompleted + totalDropped;
-      el.donutTotal.textContent = formatNumber(totalStatus);
-      el.legendActive.textContent = formatNumber(totalActive);
-      el.legendCompleted.textContent = formatNumber(totalCompleted);
-      el.legendDropped.textContent = formatNumber(totalDropped);
-
-      let activeDeg = 0;
-      let completedDeg = 0;
-
-      if (totalStatus > 0) {
-        activeDeg = (totalActive / totalStatus) * 360;
-        completedDeg = (totalCompleted / totalStatus) * 360;
-      }
-
-      el.statusDonut.style.background = `
-        conic-gradient(
-          #0d4f9a 0deg ${activeDeg}deg,
-          #9fc2e8 ${activeDeg}deg ${activeDeg + completedDeg}deg,
-          #dbe5f0 ${activeDeg + completedDeg}deg 360deg
-        )
-      `;
-    }
-
-    function renderSiteList() {
-      const rows = state.filteredRows;
-
-      if (!rows.length) {
-        el.siteList.innerHTML = `<div style="font-size:13px;color:#6b7b90;">표시할 기관 데이터가 없습니다.</div>`;
-        return;
-      }
-
-      el.siteList.innerHTML = rows.map(row => {
-        const progress = getProgressRate(row);
-        const statusText = getRecruitingStatus(row) === "recruiting" ? "등록 진행 기관" : "등록 종료 기관";
-
-        return `
-          <div class="site-item">
-            <div class="site-top">
-              <div class="site-name">● ${row.site}</div>
-              <div class="site-count">${formatNumber(row.enrolled)}</div>
-            </div>
-            <div class="progress-wrap">
-              <div class="progress-bar" style="width:${progress}%"></div>
-            </div>
-            <div class="site-meta">
-              <span class="pill">${statusText}</span>
-              <span class="pill">목표 ${formatNumber(row.target)}</span>
-              <span class="pill">등록 ${formatNumber(row.enrolled)}</span>
-              <span class="pill">진행률 ${progress.toFixed(1)}%</span>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderTable() {
-      const rows = state.filteredRows;
-
-      if (!rows.length) {
-        el.tableBody.innerHTML = `
-          <tr>
-            <td colspan="12" style="text-align:center;color:#6b7b90;padding:28px 12px;">
-              표시할 데이터가 없습니다.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      el.tableBody.innerHTML = rows.map(row => {
-        const progress = getProgressRate(row);
-        return `
-          <tr>
-            <td>${row.site}</td>
-            <td>${row.pi || "-"}</td>
-            <td>${formatNumber(row.target)}</td>
-            <td>${formatNumber(row.screened)}</td>
-            <td>${formatNumber(row.consented)}</td>
-            <td>${formatNumber(row.enrolled)}</td>
-            <td>${progress.toFixed(1)}%</td>
-            <td>${formatNumber(row.active)}</td>
-            <td>${formatNumber(row.completed)}</td>
-            <td>${formatNumber(row.dropped)}</td>
-            <td>${formatNumber(row.pending_query)}</td>
-            <td>${row.last_updated || "-"}</td>
-          </tr>
-        `;
-      }).join("");
-    }
-
-    function renderAll() {
-      renderSummary();
-      renderSiteList();
-      renderTable();
-      el.lastSyncText.textContent = `마지막 동기화: ${state.lastSync || "-"}`;
-    }
-
-    async function loadSites() {
-      try {
-        el.uploadStatus.textContent = "Supabase 데이터 불러오는 중...";
-
-        const { data, error } = await supabase
-          .from("study_sites")
-          .select("site, pi, target, screened, consented, enrolled, active, completed, dropped, pending_query, last_updated, display_order")
-          .order("display_order", { ascending: true })
-          .order("site", { ascending: true });
-
-        if (error) throw error;
-
-        const normalized = (data || []).map(normalizeDbRow);
-        state.rawRows = normalized;
-        state.rows = mergeSites(normalized);
-        state.lastSync = new Date().toLocaleString("ko-KR");
-        applyFilters();
-
-        el.uploadStatus.textContent = `불러오기 완료 (${formatNumber(state.rawRows.length)}행 / ${formatNumber(state.rows.length)}기관)`;
-      } catch (error) {
-        console.error(error);
-        el.uploadStatus.textContent = `불러오기 실패: ${error.message}`;
-      }
-    }
-
-    function readExcelFile(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = e => {
-          try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: "array" });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
-            resolve(json);
-          } catch (err) {
-            reject(err);
-          }
-        };
-
-        reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
-      });
-    }
-
-    async function deleteAllStudySites() {
-      const { error } = await supabase
-        .from("study_sites")
-        .delete()
-        .not("id", "is", null);
-
-      if (error) throw error;
-    }
-
-    async function insertStudySitesInBatches(rows, batchSize = 500) {
-      for (let i = 0; i < rows.length; i += batchSize) {
-        const batch = rows.slice(i, i + batchSize);
-        const { error } = await supabase
-          .from("study_sites")
-          .insert(batch);
-
-        if (error) throw error;
-      }
-    }
-
-    async function uploadExcelToSupabase(file) {
-      try {
-        el.uploadStatus.textContent = "엑셀 읽는 중...";
-
-        const rawRows = await readExcelFile(file);
-        if (!rawRows.length) throw new Error("엑셀에 데이터가 없습니다.");
-
-        const normalizedRows = rawRows
-          .map((row, index) => normalizeExcelRow(row, index))
-          .filter(row => row.site);
-
-        if (!normalizedRows.length) {
-          throw new Error("기관명(site) 컬럼을 찾지 못했거나 유효한 데이터가 없습니다.");
-        }
-
-        el.uploadStatus.textContent = `기존 데이터 삭제 중...`;
-        await deleteAllStudySites();
-
-        el.uploadStatus.textContent = `Supabase 저장 중... (${formatNumber(normalizedRows.length)}행)`;
-        await insertStudySitesInBatches(normalizedRows, 500);
-
-        el.uploadStatus.textContent = `업로드 완료 (${formatNumber(normalizedRows.length)}행 저장)`;
-        await loadSites();
-      } catch (error) {
-        console.error(error);
-        el.uploadStatus.textContent = `업로드 실패: ${error.message}`;
-      }
-    }
-
-    async function resetSupabaseData() {
-      const ok = confirm("study_sites 데이터를 전체 초기화할까요?");
-      if (!ok) return;
-
-      try {
-        el.uploadStatus.textContent = "전체 초기화 중...";
-        await deleteAllStudySites();
-
-        state.rawRows = [];
-        state.rows = [];
-        state.filteredRows = [];
-        state.lastSync = new Date().toLocaleString("ko-KR");
-        renderAll();
-
-        el.uploadStatus.textContent = "전체 초기화 완료";
-      } catch (error) {
-        console.error(error);
-        el.uploadStatus.textContent = `초기화 실패: ${error.message}`;
-      }
-    }
-
-    el.excelFile.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      await uploadExcelToSupabase(file);
-      e.target.value = "";
-    });
-
-    el.reloadBtn.addEventListener("click", loadSites);
-    el.resetBtn.addEventListener("click", resetSupabaseData);
-    el.searchInput.addEventListener("input", applyFilters);
-    el.statusFilter.addEventListener("change", applyFilters);
-    el.sortFilter.addEventListener("change", applyFilters);
-
-    loadSites();
-  </script>
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function uploadExcelToSupabase(file) {
+  try {
+    const rawRows = await readExcelFile(file);
+
+    const normalizedRows = rawRows
+      .map((row, index) => normalizeExcelRow(row, index))
+      .filter(row => row.site_name);
+
+    await deleteAllStudySites();
+    await insertStudySitesInBatches(normalizedRows, 500);
+
+    await loadSites();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+loadSites();
+</script>
 </body>
 </html>
