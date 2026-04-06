@@ -1,5 +1,3 @@
-<!-- 변경된 부분: "연구 전체 기준 고정 목표 등록 수" → "전체 기관 등록 목표(경쟁 모집)" -->
-
 <!doctype html>
 <html lang="ko">
   <head>
@@ -8,7 +6,33 @@
     <title>SMART-EST 연구 등록 현황</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <style>
-      /* (기존 스타일 동일 - 생략 없음) */
+      * { box-sizing: border-box; }
+      :root {
+        --brand-navy: #003876;
+        --brand-navy-dark: #002b5c;
+        --brand-blue-soft: #eef4fb;
+        --brand-line: #d9e3ef;
+        --brand-bg: #f4f7fb;
+        --brand-accent: #5f7896;
+        --text-main: #1f2937;
+        --text-sub: #5b6573;
+        --text-muted: #7b8794;
+        --card-bg: #ffffff;
+        --table-head: #f6f9fc;
+        --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.07);
+      }
+      body { margin: 0; font-family: Arial, "Noto Sans KR", sans-serif; background: linear-gradient(180deg, #eef3f9 0%, #f7f9fc 180px, var(--brand-bg) 100%); color: var(--text-main); }
+      .wrap { max-width: 1320px; margin: 0 auto; padding: 28px 24px 40px; position: relative; }
+      .page-update-badge { position: absolute; top: 4px; right: 24px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.88); border: 1px solid #d5e2f0; font-size: 11px; font-weight: 700; }
+      .header-shell { background: linear-gradient(135deg,#ffffff 0%,#f8fbff 100%); border: 1px solid var(--brand-line); border-radius: 24px; padding: 24px 26px; margin-top: 18px; margin-bottom: 22px; }
+      .header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+      .title-main { margin: 0; font-size: 28px; font-weight: 800; color: var(--brand-navy-dark); }
+      .grid5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; margin-bottom: 24px; }
+      .card { background: var(--card-bg); border: 1px solid var(--brand-line); border-radius: 20px; padding: 22px; }
+      .metric-label { font-size: 13px; color: var(--text-sub); font-weight: 700; }
+      .metric-value { font-size: 34px; font-weight: 800; margin-top: 10px; color: var(--brand-navy); }
+      .metric-sub { margin-top: 10px; font-size: 13px; color: var(--text-muted); }
     </style>
   </head>
   <body>
@@ -17,46 +41,61 @@
 
       <div class="header-shell">
         <div class="header">
-          <div>
-            <div class="eyebrow-row">
-              <div class="badge">SMART-EST</div>
-              <div class="org-tag">Enrollment Dashboard</div>
-            </div>
-
-            <div class="title-block">
-              <h1 class="title-main">
-                SMART-<span class="est">EST</span> 연구 등록 현황
-              </h1>
-
-              <div class="title-fullterm">
-                <span class="accent">E</span>ndova<span class="accent">S</span>cular Treatment or
-                <span class="accent">T</span>hrombolytic Therapy
-              </div>
-            </div>
-          </div>
-
-          <div class="top-actions-wrap">
-            <div class="top-actions">
-              <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
-              <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
-            </div>
-          </div>
+          <h1 class="title-main">SMART-EST 연구 등록 현황</h1>
         </div>
       </div>
 
-      <!-- 이하 동일 -->
+      <div class="grid5" id="summaryCards"></div>
 
     </div>
 
     <script>
-      const FIXED_TOTAL_TARGET = 10000;
+      const sampleData = [
+        {
+          site: "예시기관",
+          target: 0,
+          screened: 0,
+          consented: 0,
+          enrolled: 0,
+          active: 0,
+          completed: 0,
+          dropped: 0,
+          pendingQuery: 0,
+          siteStatus: "active",
+          lastUpdatedDisplay: "2026-04-01"
+        }
+      ];
+
+      let studyData = [...sampleData];
+
+      const summaryCards = document.getElementById("summaryCards");
+      const updateBadge = document.getElementById("updateBadge");
+
+      function getTotals(rows) {
+        return rows.reduce((acc, cur) => {
+          acc.target += cur.target;
+          acc.enrolled += cur.enrolled;
+          acc.active += cur.active;
+          acc.pendingQuery += cur.pendingQuery;
+          acc.siteCount += 1;
+          return acc;
+        }, {
+          target: 0,
+          enrolled: 0,
+          active: 0,
+          pendingQuery: 0,
+          siteCount: 0
+        });
+      }
 
       function renderSummary(rows, totals) {
-        const rate = FIXED_TOTAL_TARGET ? Math.round((totals.enrolled / FIXED_TOTAL_TARGET) * 100) : 0;
+        const FIXED_TARGET = 10000;
+        const rate = FIXED_TARGET ? Math.round((totals.enrolled / FIXED_TARGET) * 100) : 0;
+
         const cards = [
-          ["참여 기관 수", totals.siteCount, `등록 진행 ${totals.activeSites} / 등록 중단 ${totals.holdSites}`],
-          ["총 등록 목표", FIXED_TOTAL_TARGET, "전체 기관 등록 목표(경쟁 모집)"],  // 🔥 수정된 부분
-          ["총 등록 수", totals.enrolled, FIXED_TOTAL_TARGET ? `목표 대비 ${rate}%` : "업로드된 등록 합계"],
+          ["참여 기관 수", totals.siteCount, "전체 참여 기관 수"],
+          ["총 등록 목표", FIXED_TARGET, "연구 전체 기준 목표 등록 수 (고정값)"],
+          ["총 등록 수", totals.enrolled, `목표 대비 ${rate}%`],
           ["진행 중 대상자", totals.active, "현재 follow-up 포함"],
           ["미해결 Query", totals.pendingQuery, "기관 확인 필요 건수"]
         ];
@@ -69,6 +108,19 @@
           </div>
         `).join("");
       }
+
+      function updateLastUpdatedBadge(rows) {
+        const latest = rows.length ? rows[0].lastUpdatedDisplay : "-";
+        updateBadge.textContent = `최종 업데이트: ${latest}`;
+      }
+
+      function renderAll() {
+        const totals = getTotals(studyData);
+        renderSummary(studyData, totals);
+        updateLastUpdatedBadge(studyData);
+      }
+
+      renderAll();
     </script>
   </body>
 </html>
