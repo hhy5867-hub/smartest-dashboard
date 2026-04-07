@@ -2,29 +2,31 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SMART-EST 연구 등록 현황</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <style>
-/* 기존 스타일 그대로 유지 */
-*{box-sizing:border-box;}
-body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#f4f7fb;}
-.wrap{max-width:1320px;margin:0 auto;padding:28px;}
-.bar-text{position:absolute;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:#fff;}
+/* 기존 스타일 유지 + 추가 */
 .bar-track{position:relative;}
+.bar-text{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+font-size:12px;
+font-weight:700;
+color:#fff;
+pointer-events:none;
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
 
-<div class="card">
-<div class="section-title">기관별 등록 현황</div>
+<input type="file" id="fileInput">
+
 <div id="barChart"></div>
-</div>
 
-<div class="card">
-<div class="section-title">기관별 상세 현황</div>
-<table>
+<table border="1">
 <thead>
 <tr>
 <th>기관번호</th>
@@ -42,18 +44,17 @@ body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#f4f7fb;}
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
-</div>
-
-</div>
 
 <script>
+
 let studyData=[];
 
 function renderBarChart(rows){
-document.getElementById("barChart").innerHTML=rows.map(row=>{
-const percent=row.target>0?Math.round((row.enrolled/row.target)*100):0;
+document.getElementById("barChart").innerHTML = rows.map(row=>{
+const percent = row.target>0 ? Math.round((row.enrolled/row.target)*100) : 0;
+
 return `
-<div style="margin-bottom:10px;">
+<div style="margin-bottom:12px;">
 <div>${row.site}</div>
 <div class="bar-track" style="height:20px;background:#eee;border-radius:10px;">
 <div style="width:${percent}%;height:100%;background:#003876;border-radius:10px;position:relative;">
@@ -67,11 +68,11 @@ return `
 }
 
 function renderTable(rows){
-document.getElementById("tableBody").innerHTML=rows.map(row=>`
+document.getElementById("tableBody").innerHTML = rows.map(row=>`
 <tr>
-<td>${row.site_id||"-"}</td>
+<td>${row.site_id || "-"}</td>
 <td>${row.site}</td>
-<td>${row.pi||"-"}</td>
+<td>${row.pi || "-"}</td>
 <td>${row.target}</td>
 <td>${row.screened}</td>
 <td>${row.enrolled}</td>
@@ -79,50 +80,54 @@ document.getElementById("tableBody").innerHTML=rows.map(row=>`
 <td>${row.completed}</td>
 <td>${row.dropped}</td>
 <td>${row.pendingQuery}</td>
-<td>${row.lastUpdatedDisplay||"-"}</td>
+<td>${row.lastUpdated}</td>
 </tr>
 `).join("");
 }
 
 function renderAll(){
-const sorted=[...studyData].sort((a,b)=>{
+const sorted = [...studyData].sort((a,b)=>{
 if(!a.site_id) return 1;
 if(!b.site_id) return -1;
-return a.site_id>b.site_id?1:-1;
+return a.site_id > b.site_id ? 1 : -1;
 });
 renderBarChart(sorted);
 renderTable(sorted);
 }
 
-function parseExcelRows(rows){
+function parseExcel(rows){
 return rows.map(r=>({
-site:r.site_name,
-site_id:r.site_id,
-pi:r.site_pi,
-target:Number(r.target_enr)||0,
-screened:Number(r.consented)||0,
-enrolled:Number(r.enrolled)||0,
-active:Number(r.ongoing)||0,
-completed:Number(r.completed)||0,
-dropped:Number(r.dropped)||0,
-pendingQuery:Number(r.pending_query)||0,
-lastUpdatedDisplay:r.last_updated
+site: r.site_name,
+site_id: r.site_id,
+pi: r.site_pi,
+target: Number(r.target_enr)||0,
+screened: Number(r.consented)||0,
+enrolled: Number(r.enrolled)||0,
+active: Number(r.ongoing)||0,
+completed: Number(r.completed)||0,
+dropped: Number(r.dropped)||0,
+pendingQuery: Number(r.pending_query)||0,
+lastUpdated: r.last_updated
 }));
 }
 
-function loadWorkbook(file){
-const reader=new FileReader();
-reader.onload=e=>{
-const data=new Uint8Array(e.target.result);
-const wb=XLSX.read(data,{type:"array"});
-const ws=wb.Sheets[wb.SheetNames[0]];
-const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
-studyData=parseExcelRows(rows);
+document.getElementById("fileInput").addEventListener("change",function(e){
+const file = e.target.files[0];
+const reader = new FileReader();
+
+reader.onload = function(e){
+const data = new Uint8Array(e.target.result);
+const wb = XLSX.read(data,{type:"array"});
+const ws = wb.Sheets[wb.SheetNames[0]];
+const rows = XLSX.utils.sheet_to_json(ws,{defval:""});
+studyData = parseExcel(rows);
 renderAll();
 };
+
 reader.readAsArrayBuffer(file);
-}
+});
 
 </script>
+
 </body>
 </html>
