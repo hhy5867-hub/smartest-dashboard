@@ -810,12 +810,8 @@
   <div class="grid2">
     <div class="card">
       <div class="section-title-row">
-        <div class="section-title">기관별 등록 현황</div>
+        <div class="section-title" id="chartSectionTitle">기관별 등록 현황 I 등록 수 기준</div>
         <button class="btn secondary chart-toggle-btn" id="chartToggleBtn" onclick="toggleChartMode()">진행률 기준</button>
-      </div>
-
-      <div class="subsection-title">
-        <span class="mode-pill" id="chartModePill">등록 수 기준</span>
       </div>
 
       <div class="chart-row" id="toggleChart"></div>
@@ -900,6 +896,8 @@
       site: "신촌세브란스병원",
       pi: "남효석",
       target: 50,
+      targetDisplay: "50",
+      targetIsText: false,
       consented: 40,
       enrolled: 30,
       active: 20,
@@ -923,8 +921,8 @@
   const tableBody = document.getElementById("tableBody");
   const summaryCards = document.getElementById("summaryCards");
   const toggleChart = document.getElementById("toggleChart");
+  const chartSectionTitle = document.getElementById("chartSectionTitle");
   const chartToggleBtn = document.getElementById("chartToggleBtn");
-  const chartModePill = document.getElementById("chartModePill");
   const donut = document.getElementById("donut");
   const donutTotal = document.getElementById("donutTotal");
   const legend = document.getElementById("legend");
@@ -942,6 +940,32 @@
     const cleaned = String(value).replace(/,/g, "").trim();
     const num = Number(cleaned);
     return isNaN(num) ? 0 : num;
+  }
+
+
+  function getTargetInfo(value) {
+    if (value === null || value === undefined || value === "") {
+      return { value: 0, display: "0", isText: false };
+    }
+
+    if (typeof value === "number") {
+      return { value: isNaN(value) ? 0 : value, display: String(isNaN(value) ? 0 : value), isText: false };
+    }
+
+    const raw = String(value).trim();
+    const cleaned = raw.replace(/,/g, "");
+    const num = Number(cleaned);
+
+    if (raw !== "" && !isNaN(num)) {
+      return { value: num, display: raw, isText: false };
+    }
+
+    return { value: 0, display: raw, isText: true };
+  }
+
+  function formatTargetDisplay(targetValue, targetDisplay, isText) {
+    if (isText) return targetDisplay || "-";
+    return Number(targetValue || 0).toLocaleString();
   }
 
   function normalizeKey(key) {
@@ -1093,12 +1117,15 @@
       .map(row => {
         const formattedDate = updatedCol ? formatDateValue(row[updatedCol]) : "";
         const siteStatus = statusCol ? normalizeStatusValue(row[statusCol]) : "active";
+        const targetInfo = targetCol ? getTargetInfo(row[targetCol]) : { value: 0, display: "0", isText: false };
 
         return {
           site_id: siteIdCol ? safeNumber(row[siteIdCol]) : 0,
           site: String(row[siteCol]).trim(),
           pi: piCol ? String(row[piCol] ?? "").trim() : "",
-          target: targetCol ? safeNumber(row[targetCol]) : 0,
+          target: targetInfo.value,
+          targetDisplay: targetInfo.display,
+          targetIsText: targetInfo.isText,
           consented: consentedCol ? safeNumber(row[consentedCol]) : 0,
           enrolled: enrolledCol ? safeNumber(row[enrolledCol]) : 0,
           active: activeCol ? safeNumber(row[activeCol]) : 0,
@@ -1220,6 +1247,8 @@
     const totals = getTotals(chartRows);
     const maxEnrolled = Math.max(...chartRows.map(row => row.enrolled || 0), 0);
 
+    chartSectionTitle.textContent = "기관별 등록 현황 I 등록 수 기준";
+
     toggleChart.innerHTML = chartRows.map(row => {
       const inactive = isStoppedStatus(row.siteStatus);
       const barWidth = maxEnrolled > 0
@@ -1257,12 +1286,13 @@
       `;
     }).join("");
 
-    chartModePill.textContent = "등록 수 기준";
     chartToggleBtn.textContent = "진행률 기준";
   }
 
   function renderProgressChart(rows) {
     const chartRows = getBarChartRows(rows);
+
+    chartSectionTitle.textContent = "기관별 등록 현황 I 진행률 기준";
 
     toggleChart.innerHTML = chartRows.map(row => {
       const percentValue = row.target > 0 ? (row.enrolled / row.target) * 100 : 0;
@@ -1295,12 +1325,11 @@
               <span class="${labelClasses}">${percentLabel}</span>
             </div>
           </div>
-          <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
+          <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()} / ${row.target.toLocaleString()}</div>
         </div>
       `;
     }).join("");
 
-    chartModePill.textContent = "진행률 기준";
     chartToggleBtn.textContent = "등록 수 기준";
   }
 
@@ -1352,7 +1381,7 @@
           <td>${String(row.site_id).padStart(3, "0")}</td>
           <td><strong class="site-name ${inactive ? "inactive" : ""}">${row.site}</strong></td>
           <td>${row.pi || "-"}</td>
-          <td class="text-right">${row.target.toLocaleString()}</td>
+          <td class="text-right">${formatTargetDisplay(row.target, row.targetDisplay, row.targetIsText)}</td>
           <td class="text-right">${row.consented.toLocaleString()}</td>
           <td class="text-right"><strong>${row.enrolled.toLocaleString()}</strong></td>
           <td class="text-right">${row.active.toLocaleString()}</td>
