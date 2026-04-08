@@ -287,7 +287,7 @@
     background: var(--card-bg);
     border: 1px solid var(--brand-line);
     border-radius: 20px;
-    padding: 22px;
+    padding: 24px;
     box-shadow: var(--shadow-sm);
   }
 
@@ -317,7 +317,7 @@
   .section-title {
     font-size: 18px;
     font-weight: 800;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     color: var(--brand-navy-dark);
     letter-spacing: -0.01em;
   }
@@ -430,32 +430,32 @@
   .chart-row {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
   }
 
   .bar-item {
     display: grid;
     grid-template-columns: 220px 1fr 78px;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
   }
 
   .bar-label {
     font-size: 14px;
     font-weight: 700;
-    color: #334155;
+    color: #617285;
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
   .bar-label.inactive {
-    color: #8a7c67;
+    color: #9a8f7a;
   }
 
   .bar-track {
     width: 100%;
-    height: 24px;
+    height: 16px;
     background: #e6edf5;
     border-radius: 999px;
     overflow: hidden;
@@ -471,17 +471,18 @@
     align-items: center;
     justify-content: flex-end;
     padding-right: 8px;
-    color: #fff;
-    font-size: 12px;
+    color: #ffffff;
+    font-size: 11px;
     font-weight: 800;
     white-space: nowrap;
+    overflow: hidden;
   }
 
   .bar-fill.zero {
     width: 2px !important;
     background: #cfd8e3;
-    color: transparent;
     padding-right: 0;
+    color: transparent;
   }
 
   .bar-fill.inactive {
@@ -568,7 +569,7 @@
   }
 
   .status-note {
-    margin-top: 14px;
+    margin-top: 16px;
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -637,15 +638,12 @@
     .header-shell {
       margin-top: 0;
     }
-    .bar-item {
-      grid-template-columns: 1fr;
-    }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="page-update-badge" id="updateBadge">최종 업데이트: 2026-04-01</div>
+  <div class="page-update-badge" id="updateBadge">최종 업데이트: 2026-03-31</div>
 
   <div class="header-shell">
     <div class="header">
@@ -687,12 +685,13 @@
       <button class="btn secondary" onclick="loadSampleData()">예시 데이터로 되돌리기</button>
     </div>
     <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none">
-    <div class="status-box" id="fileStatus">현재: 예시 데이터 표시 중 (1개 기관)</div>
+    <div class="status-box" id="fileStatus">현재: SMART-EST_등록현황.xlsx 적용 완료 (24개 기관)</div>
 
     <div class="hint-box">
       <div><strong>엑셀 열 이름</strong></div>
       <div class="muted" style="margin-top:8px; line-height:1.7;">
-        site_id / site_name / site_pi / target_enr / consented / enrolled / ongoing / completed / dropped / pending_query / last_updated / site_status
+        site_name / site_id / site_pi / initial_approval_status / initial_approval_date / target_enr / site_status / site_note<br>
+        consented / enrolled / enrolled_delta / ongoing / completed / dropped / pending_query / last_updated
       </div>
     </div>
   </div>
@@ -731,10 +730,10 @@
         <option value="all">전체 기관</option>
       </select>
       <select id="sortFilter">
-        <option value="site_id">기관번호 오름차순</option>
         <option value="enrolled">등록 수 순</option>
-        <option value="consented">스크리닝(동의 취득) 수 순</option>
+        <option value="screened">스크리닝 수 순</option>
         <option value="pendingQuery">미해결 Query 순</option>
+        <option value="progress">등록률 순</option>
       </select>
     </div>
 
@@ -743,13 +742,14 @@
       <table>
         <thead>
           <tr>
-            <th>기관번호</th>
             <th>기관명</th>
-            <th>연구책임자</th>
+            <th>책임연구자</th>
             <th class="text-right">목표</th>
-            <th class="text-right">스크리닝(동의 취득)</th>
+            <th class="text-right">스크리닝</th>
+            <th class="text-right">동의</th>
             <th class="text-right">등록</th>
-            <th class="text-right">진행 중</th>
+            <th>진행률</th>
+            <th class="text-right">진행중</th>
             <th class="text-right">완료</th>
             <th class="text-right">중도탈락</th>
             <th class="text-right">미해결 Query</th>
@@ -764,9 +764,10 @@
   <div class="note">
     <strong>사용 방법</strong>
     <ul>
-      <li>이 파일 전체를 그대로 업로드하면 됩니다.</li>
-      <li>사이트가 열리면 예시 데이터 1줄이 먼저 표시됩니다.</li>
-      <li>이후 엑셀 업로드 시 같은 화면에서 실제 데이터로 바뀝니다.</li>
+      <li>Netlify에 이 <b>index.html</b> 파일만 올리면 됩니다.</li>
+      <li>사이트가 열리면 엑셀 파일을 드래그하거나 선택합니다.</li>
+      <li>엑셀 열 이름은 <b>site_name, site_id, site_pi, initial_approval_status, initial_approval_date, target_enr, site_status, site_note, consented, enrolled, enrolled_delta, ongoing, completed, dropped, pending_query, last_updated</b> 형식을 사용합니다.</li>
+      <li>엑셀에서 <b>site_status</b>가 등록 중단으로 표시된 기관은 기관명과 그래프가 다른 색으로 표시됩니다.</li>
     </ul>
   </div>
 </div>
@@ -776,16 +777,16 @@
 
   const sampleData = [
     {
-      site_id: 1,
-      site: "세브란스병원",
-      pi: "김영대",
-      target: 50,
-      consented: 40,
-      enrolled: 30,
-      active: 20,
-      completed: 5,
-      dropped: 2,
-      pendingQuery: 3,
+      site: "예시기관",
+      pi: "",
+      target: 0,
+      screened: 0,
+      consented: 0,
+      enrolled: 0,
+      active: 0,
+      completed: 0,
+      dropped: 0,
+      pendingQuery: 0,
       siteStatus: "active",
       siteStatusLabel: "등록 진행",
       lastUpdatedRaw: new Date("2026-04-01"),
@@ -830,9 +831,17 @@
 
     if (!compact) return "unknown";
 
-    if (["active","open","ongoing","recruiting","진행","진행중","등록중","등록진행","모집중","운영중","오픈"].includes(compact)) return "active";
-    if (["hold","paused","pause","onhold","inactive","중지","보류","등록안함","등록중지","등록중단","모집중지","일시중지","비활성"].includes(compact)) return "hold";
-    if (["closed","close","ended","complete","completed","종료","마감","등록종료","모집종료","종결"].includes(compact)) return "closed";
+    if (
+      ["active", "open", "ongoing", "recruiting", "진행", "진행중", "등록중", "등록진행", "모집중", "운영중", "오픈"].includes(compact)
+    ) return "active";
+
+    if (
+      ["hold", "paused", "pause", "onhold", "inactive", "중지", "보류", "등록안함", "등록중지", "등록중단", "모집중지", "일시중지", "비활성"].includes(compact)
+    ) return "hold";
+
+    if (
+      ["closed", "close", "ended", "complete", "completed", "종료", "마감", "등록종료", "모집종료", "종결"].includes(compact)
+    ) return "closed";
 
     return "unknown";
   }
@@ -908,21 +917,25 @@
       throw new Error("엑셀에 비어 있지 않은 행이 없습니다.");
     }
 
-    const siteIdCol = findColumn(firstRow, ["siteid","기관번호","sitecode"]);
     const siteCol = findColumn(firstRow, ["sitename","기관명","기관","site","병원","센터","center","hospital"]);
-    const piCol = findColumn(firstRow, ["sitepi","pi","연구책임자","investigator"]);
+    const piCol = findColumn(firstRow, ["sitepi","pi","연구자","책임연구자","교수","교수명"]);
     const targetCol = findColumn(firstRow, ["targetenr","target","목표","목표수","목표등록","목표등록수"]);
-    const consentedCol = findColumn(firstRow, ["consented","동의","동의수","스크리닝","screening"]);
-    const enrolledCol = findColumn(firstRow, ["enrolled","등록","등록수","등록환자수","누적등록"]);
+    const screenedCol = findColumn(firstRow, ["screened","스크리닝","screening"]);
+    const consentedCol = findColumn(firstRow, ["consented","동의","동의수"]);
+    const enrolledCol = findColumn(firstRow, ["enrolled","등록","등록수","등록환자수","누적등록","등록건수","totalenrolled","totalregistered"]);
+    const statusCol = findColumn(firstRow, [
+      "sitestatus","연구상태","연구상태값","연구상태구분","연구상태여부","연구상태정보","연구상태코드",
+      "연구상태","연구상태","연구상태","연구상태","연구상태",
+      "연구상태","진행상태","상태","등록상태","status","recruitmentstatus","active여부","recruitingstatus"
+    ]);
     const activeCol = findColumn(firstRow, ["ongoing","active","진행중","진행중대상자"]);
     const completedCol = findColumn(firstRow, ["completed","완료","완료수"]);
     const droppedCol = findColumn(firstRow, ["dropped","중도탈락","dropout","탈락"]);
     const queryCol = findColumn(firstRow, ["pendingquery","query","미해결query","미해결쿼리","쿼리"]);
     const updatedCol = findColumn(firstRow, ["lastupdated","updated","최종업데이트","업데이트","update"]);
-    const statusCol = findColumn(firstRow, ["sitestatus","연구상태","진행상태","상태","등록상태","status"]);
 
     if (!siteCol || !enrolledCol) {
-      throw new Error("엑셀에서 기관명 열과 등록 열을 찾지 못했습니다.");
+      throw new Error("엑셀에서 'site_name' 열과 'enrolled' 열을 찾지 못했습니다.");
     }
 
     const parsed = rows
@@ -931,10 +944,10 @@
         const formattedDate = updatedCol ? formatDateValue(row[updatedCol]) : "";
         const siteStatus = statusCol ? normalizeStatusValue(row[statusCol]) : "active";
         return {
-          site_id: siteIdCol ? safeNumber(row[siteIdCol]) : 0,
           site: String(row[siteCol]).trim(),
           pi: piCol ? String(row[piCol] ?? "").trim() : "",
           target: targetCol ? safeNumber(row[targetCol]) : 0,
+          screened: screenedCol ? safeNumber(row[screenedCol]) : 0,
           consented: consentedCol ? safeNumber(row[consentedCol]) : 0,
           enrolled: enrolledCol ? safeNumber(row[enrolledCol]) : 0,
           active: activeCol ? safeNumber(row[activeCol]) : 0,
@@ -979,7 +992,15 @@
     });
 
     rows.sort((a, b) => {
-      if (sortValue === "site_id") return (a.site_id || 0) - (b.site_id || 0);
+      const aZero = a.enrolled === 0 ? 1 : 0;
+      const bZero = b.enrolled === 0 ? 1 : 0;
+      if (aZero !== bZero) return aZero - bZero;
+
+      if (sortValue === "progress") {
+        const aRate = a.target ? a.enrolled / a.target : a.enrolled;
+        const bRate = b.target ? b.enrolled / b.target : b.enrolled;
+        return bRate - aRate;
+      }
       return (b[sortValue] || 0) - (a[sortValue] || 0);
     });
 
@@ -989,6 +1010,7 @@
   function getTotals(rows) {
     return rows.reduce((acc, cur) => {
       acc.target += cur.target;
+      acc.screened += cur.screened;
       acc.consented += cur.consented;
       acc.enrolled += cur.enrolled;
       acc.active += cur.active;
@@ -1003,6 +1025,7 @@
       return acc;
     }, {
       target: 0,
+      screened: 0,
       consented: 0,
       enrolled: 0,
       active: 0,
@@ -1053,9 +1076,9 @@
 
   function renderBarChart(rows) {
     barChart.innerHTML = rows.map(row => {
-      const percentValue = row.target > 0 ? Math.round((row.enrolled / row.target) * 100) : 0;
-      const barWidth = row.target > 0 ? Math.max(row.enrolled > 0 ? 10 : 0, Math.min(percentValue, 100)) : (row.enrolled > 0 ? 10 : 2);
-      const displayPercent = row.target > 0 ? `${percentValue}%` : "-";
+      const percentValue = row.target > 0 ? Math.round((row.enrolled / row.target) * 100) : null;
+      const barWidth = percentValue !== null ? Math.max(row.enrolled > 0 ? 2 : 0, Math.min(percentValue, 100)) : (row.enrolled > 0 ? 2 : 0);
+      const displayText = percentValue !== null ? `${percentValue}%` : "-";
       const inactive = isStoppedStatus(row.siteStatus);
       const fillClasses = [
         row.enrolled === 0 ? "zero" : "",
@@ -1066,10 +1089,10 @@
         <div class="bar-item">
           <div class="bar-label ${inactive ? "inactive" : ""}">
             <span class="bar-status-dot ${row.siteStatus}"></span>
-            <span>${String(row.site_id).padStart(3, "0")} ${row.site}</span>
+            <span>${row.site}</span>
           </div>
           <div class="bar-track">
-            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%">${displayPercent}</div>
+            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%">${displayText}</div>
           </div>
           <div style="text-align:right;font-weight:800;color:${inactive ? "#8a7c67" : "#003876"};">${row.enrolled.toLocaleString()}</div>
         </div>
@@ -1108,17 +1131,25 @@
 
   function renderTable(rows) {
     tableBody.innerHTML = rows.map((row) => {
+      const progress = row.target ? Math.round((row.enrolled / row.target) * 100) : 0;
       const queryClass = row.pendingQuery === 0 ? "pill zero" : "pill";
       const inactive = isStoppedStatus(row.siteStatus);
       const rowClass = inactive ? "table-row-inactive" : "";
       return `
         <tr class="${rowClass}">
-          <td>${String(row.site_id).padStart(3, "0")}</td>
           <td><strong class="site-name ${inactive ? "inactive" : ""}">${row.site}</strong></td>
           <td>${row.pi || "-"}</td>
           <td class="text-right">${row.target.toLocaleString()}</td>
+          <td class="text-right">${row.screened.toLocaleString()}</td>
           <td class="text-right">${row.consented.toLocaleString()}</td>
           <td class="text-right"><strong>${row.enrolled.toLocaleString()}</strong></td>
+          <td>
+            ${row.target > 0 ? `
+            <div class="progress-box">
+              <div class="progress"><div class="progress-bar ${inactive ? "inactive" : ""}" style="width:${progress}%"></div></div>
+              <span style="font-size:13px;color:${inactive ? "#8a7c67" : "#475569"};min-width:38px;text-align:right;">${progress}%</span>
+            </div>` : `<span class="muted">-</span>`}
+          </td>
           <td class="text-right">${row.active.toLocaleString()}</td>
           <td class="text-right">${row.completed.toLocaleString()}</td>
           <td class="text-right">${row.dropped.toLocaleString()}</td>
@@ -1142,9 +1173,9 @@
   function loadSampleData() {
     studyData = [...sampleData];
     searchInput.value = "";
-    sortFilter.value = "site_id";
+    sortFilter.value = "enrolled";
     resetSiteOptions();
-    fileStatus.textContent = "현재: 예시 데이터 표시 중 (1개 기관)";
+    fileStatus.textContent = "현재: 예시 데이터 표시 중";
     renderAll();
   }
 
@@ -1160,7 +1191,7 @@
         const parsed = parseExcelRows(rows);
         studyData = parsed;
         searchInput.value = "";
-        sortFilter.value = "site_id";
+        sortFilter.value = "enrolled";
         resetSiteOptions();
         fileStatus.textContent = `현재: ${file.name} 적용 완료 (${parsed.length}개 기관)`;
         renderAll();
@@ -1174,14 +1205,14 @@
 
   function downloadCSV() {
     const rows = getFilteredData();
-    const headers = ["site_id","site_name","site_pi","target_enr","consented","enrolled","ongoing","completed","dropped","pending_query","last_updated"];
+    const headers = ["site_name","site_pi","target_enr","consented","enrolled","site_status","ongoing","completed","dropped","pending_query","last_updated"];
     const csvRows = rows.map(row => [
-      row.site_id,
       row.site,
       row.pi,
       row.target,
       row.consented,
       row.enrolled,
+      row.siteStatus,
       row.active,
       row.completed,
       row.dropped,
