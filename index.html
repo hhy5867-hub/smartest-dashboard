@@ -524,7 +524,7 @@
   }
 
   .bar-item.progress-mode {
-    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 120px;
+    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 150px;
   }
 
   .bar-label {
@@ -614,6 +614,9 @@
     align-items: center;
     justify-content: flex-end;
     gap: 0;
+    width: 150px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
   }
 
   .bar-value.progress-value.inactive {
@@ -623,11 +626,24 @@
   .bar-value.progress-value .progress-current {
     color: #526171;
     font-weight: 800;
+    flex: 0 0 48px;
+    text-align: right;
   }
 
-  .bar-value.progress-value .progress-rest {
+  .bar-value.progress-value .progress-divider {
+    flex: 0 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-weight: 700;
+  }
+
+  .bar-value.progress-value .progress-target {
     opacity: 0.4;
     font-weight: 700;
+    flex: 0 0 84px;
+    text-align: left;
   }
 
   .bar-inside-label.contribution-label {
@@ -800,6 +816,11 @@
     .bar-value {
       text-align: left;
       padding-left: 16px;
+    }
+
+    .bar-value.progress-value {
+      width: auto;
+      justify-content: flex-start;
     }
 
     .bar-inside-label {
@@ -1426,7 +1447,9 @@
             </div>
           </div>
           <div class="bar-value progress-value ${inactive ? "inactive" : ""}">
-            <span class="progress-current">${row.enrolled.toLocaleString()}</span><span class="progress-rest"> I ${escapeHtml(targetChartDisplay)}</span>
+            <span class="progress-current">${row.enrolled.toLocaleString()}</span>
+            <span class="progress-divider">I</span>
+            <span class="progress-target">${escapeHtml(targetChartDisplay)}</span>
           </div>
         </div>
       `;
