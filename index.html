@@ -78,6 +78,8 @@ body {
   color: #fff;
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .bar-value {
@@ -161,7 +163,7 @@ function render() {
 
   rows.sort((a,b)=>{
     let v = a[sort.key] > b[sort.key] ? 1 : -1;
-    return sort.dir==="asc"?v:-v;
+    return sort.dir==="asc" ? v : -v;
   });
 
   renderChart(rows);
@@ -170,18 +172,19 @@ function render() {
 }
 
 function renderChart(rows){
-  const max = Math.max(...rows.map(r=>r.enrolled),1);
+  const max = Math.max(...rows.map(r => r.enrolled), 1);
 
-  document.getElementById("chart").innerHTML = rows.map(r=>{
-    const w = (r.enrolled/max)*100;
-    const percent = r.target ? Math.round(r.enrolled/r.target*100) : 0;
+  document.getElementById("chart").innerHTML = rows.map(r => {
+    const w = (r.enrolled / max) * 100;
+    const percent = r.target ? Math.round((r.enrolled / r.target) * 100) : 0;
+    const visualWidth = r.enrolled > 0 ? Math.max(w, 18) : 0;
 
     return `
       <div class="bar-item">
         <div>${r.site}</div>
         <div class="bar-track">
-          <div class="bar-fill" style="width:${w}%">
-            <span class="bar-inside-label">${percent}%</span>
+          <div class="bar-fill" style="width:${visualWidth}%">
+            ${r.enrolled > 0 ? `<span class="bar-inside-label">${percent}%</span>` : ``}
           </div>
         </div>
         <div class="bar-value">
@@ -193,7 +196,7 @@ function renderChart(rows){
 }
 
 function renderTable(rows){
-  document.getElementById("table").innerHTML = rows.map(r=>`
+  document.getElementById("table").innerHTML = rows.map(r => `
     <tr>
       <td>${r.site_id}</td>
       <td>${r.site}</td>
@@ -205,11 +208,11 @@ function renderTable(rows){
 }
 
 function updateSortUI(){
-  document.querySelectorAll("th").forEach(th=>{
+  document.querySelectorAll("th").forEach(th => {
     const key = th.dataset.key;
     const el = th.querySelector(".sort-indicator");
-    if(sort.key===key){
-      el.textContent = sort.dir==="asc"?"▲":"▼";
+    if(sort.key === key){
+      el.textContent = sort.dir === "asc" ? "▲" : "▼";
     } else {
       el.textContent = "";
     }
@@ -218,11 +221,11 @@ function updateSortUI(){
 
 document.getElementById("search").addEventListener("input", render);
 
-document.querySelectorAll("th").forEach(th=>{
-  th.addEventListener("click",()=>{
+document.querySelectorAll("th").forEach(th => {
+  th.addEventListener("click", () => {
     const key = th.dataset.key;
-    if(sort.key===key){
-      sort.dir = sort.dir==="asc"?"desc":"asc";
+    if(sort.key === key){
+      sort.dir = sort.dir === "asc" ? "desc" : "asc";
     } else {
       sort.key = key;
       sort.dir = "asc";
