@@ -217,6 +217,14 @@
     transform: translateY(-1px);
   }
 
+  .chart-toggle-btn {
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
   .dropzone {
     border: 1.5px dashed #9db6d3;
     background: linear-gradient(180deg, #fbfdff 0%, #f5f9fe 100%);
@@ -326,6 +334,19 @@
     margin-bottom: 16px;
     color: var(--brand-navy-dark);
     letter-spacing: -0.01em;
+  }
+
+  .section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .section-title-row .section-title {
+    margin-bottom: 0;
   }
 
   .subsection-title {
@@ -461,7 +482,7 @@
   }
 
   .bar-item.progress-mode {
-    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 56px 68px;
+    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 68px 68px;
   }
 
   .bar-label {
@@ -488,7 +509,7 @@
 
   .bar-track {
     width: 100%;
-    height: 10px;
+    height: 14px;
     background: #e3eaf2;
     border-radius: 999px;
     overflow: hidden;
@@ -501,6 +522,7 @@
     background: linear-gradient(90deg, #0b4b93 0%, #2f69ad 55%, #5d8ec7 100%);
     border-radius: 999px;
     transition: width 0.2s ease;
+    position: relative;
   }
 
   .bar-fill.zero {
@@ -510,6 +532,29 @@
 
   .bar-fill.inactive {
     background: linear-gradient(90deg, #a39178 0%, #b4a188 55%, #c8b8a2 100%);
+  }
+
+  .bar-inside-label {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .bar-inside-label.outside {
+    right: auto;
+    left: calc(100% + 8px);
+    color: #355f93;
+  }
+
+  .bar-inside-label.inactive.outside {
+    color: #8a7c67;
   }
 
   .bar-percent {
@@ -702,6 +747,13 @@
       text-align: left;
       padding-left: 16px;
     }
+
+    .bar-inside-label,
+    .bar-inside-label.outside {
+      right: 10px;
+      left: auto;
+      color: #ffffff;
+    }
   }
 </style>
 </head>
@@ -763,15 +815,13 @@
 
   <div class="grid2">
     <div class="card">
-      <div class="section-title">기관별 등록 현황</div>
+      <div class="section-title-row">
+        <div class="section-title">기관별 등록 현황</div>
+        <button class="btn secondary chart-toggle-btn" id="chartToggleBtn" onclick="toggleChartMode()">진행률 보기</button>
+      </div>
 
-      <div class="subsection-title">등록 수 기준</div>
-      <div class="chart-row" id="barChart"></div>
-
-      <div class="chart-divider"></div>
-
-      <div class="subsection-title">등록 목표 대비 진행률</div>
-      <div class="chart-row" id="progressChart"></div>
+      <div class="subsection-title" id="chartSubTitle">등록 수 기준 기여도</div>
+      <div class="chart-row" id="toggleChart"></div>
 
       <div class="status-note">
         <div class="status-note-item"><span class="bar-status-dot active"></span>등록 진행 기관</div>
@@ -868,14 +918,16 @@
 
   let studyData = [...sampleData];
   let lastUploadedAt = null;
+  let chartMode = "contribution";
 
   const searchInput = document.getElementById("searchInput");
   const siteFilter = document.getElementById("siteFilter");
   const sortFilter = document.getElementById("sortFilter");
   const tableBody = document.getElementById("tableBody");
   const summaryCards = document.getElementById("summaryCards");
-  const barChart = document.getElementById("barChart");
-  const progressChart = document.getElementById("progressChart");
+  const toggleChart = document.getElementById("toggleChart");
+  const chartSubTitle = document.getElementById("chartSubTitle");
+  const chartToggleBtn = document.getElementById("chartToggleBtn");
   const donut = document.getElementById("donut");
   const donutTotal = document.getElementById("donutTotal");
   const legend = document.getElementById("legend");
@@ -996,6 +1048,17 @@
       if (aZero !== bZero) return aZero - bZero;
       return (b.enrolled || 0) - (a.enrolled || 0);
     });
+  }
+
+  function getContributionPercent(enrolled, totalEnrolled) {
+    if (!totalEnrolled) return 0;
+    return (enrolled / totalEnrolled) * 100;
+  }
+
+  function formatPercent(value) {
+    if (!isFinite(value) || value <= 0) return "0%";
+    if (value < 1) return `${value.toFixed(1)}%`;
+    return `${Math.round(value)}%`;
   }
 
   /* =========================
@@ -1128,6 +1191,11 @@
     updateBadge.textContent = `최종 업데이트: ${lastUploadedAt ? formatDateTimeValue(lastUploadedAt) : "-"}`;
   }
 
+  function toggleChartMode() {
+    chartMode = chartMode === "contribution" ? "progress" : "contribution";
+    renderAll();
+  }
+
   /* =========================
      JavaScript: Rendering
   ========================= */
@@ -1150,18 +1218,29 @@
     `).join("");
   }
 
-  function renderBarChart(rows) {
+  function renderContributionChart(rows) {
     const chartRows = getBarChartRows(rows);
+    const totals = getTotals(chartRows);
     const maxEnrolled = Math.max(...chartRows.map(row => row.enrolled || 0), 0);
 
-    barChart.innerHTML = chartRows.map(row => {
+    toggleChart.innerHTML = chartRows.map(row => {
       const inactive = isStoppedStatus(row.siteStatus);
       const barWidth = maxEnrolled > 0
         ? Math.max(row.enrolled > 0 ? 10 : 0, (row.enrolled / maxEnrolled) * 100)
         : 2;
 
+      const contributionPercent = getContributionPercent(row.enrolled, totals.enrolled);
+      const contributionLabel = formatPercent(contributionPercent);
+      const useOutsideLabel = barWidth < 24;
+
       const fillClasses = [
         row.enrolled === 0 ? "zero" : "",
+        inactive ? "inactive" : ""
+      ].filter(Boolean).join(" ");
+
+      const labelClasses = [
+        "bar-inside-label",
+        useOutsideLabel ? "outside" : "",
         inactive ? "inactive" : ""
       ].filter(Boolean).join(" ");
 
@@ -1172,23 +1251,29 @@
             <span class="bar-label-text">${row.site}</span>
           </div>
           <div class="bar-track">
-            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%"></div>
+            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%">
+              <span class="${labelClasses}">${contributionLabel}</span>
+            </div>
           </div>
           <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
         </div>
       `;
     }).join("");
+
+    chartSubTitle.textContent = "등록 수 기준 기여도";
+    chartToggleBtn.textContent = "진행률 보기";
   }
 
   function renderProgressChart(rows) {
     const chartRows = getBarChartRows(rows);
 
-    progressChart.innerHTML = chartRows.map(row => {
-      const percentValue = row.target > 0 ? Math.round((row.enrolled / row.target) * 100) : 0;
+    toggleChart.innerHTML = chartRows.map(row => {
+      const percentValue = row.target > 0 ? (row.enrolled / row.target) * 100 : 0;
+      const roundedPercent = row.target > 0 ? Math.round(percentValue) : 0;
       const barWidth = row.target > 0
-        ? Math.max(row.enrolled > 0 ? 10 : 0, Math.min(percentValue, 100))
+        ? Math.max(row.enrolled > 0 ? 10 : 0, Math.min(roundedPercent, 100))
         : (row.enrolled > 0 ? 10 : 2);
-      const displayPercent = row.target > 0 ? `${percentValue}%` : "-";
+      const displayPercent = row.target > 0 ? `${roundedPercent}%` : "-";
       const inactive = isStoppedStatus(row.siteStatus);
 
       const fillClasses = [
@@ -1215,6 +1300,17 @@
         </div>
       `;
     }).join("");
+
+    chartSubTitle.textContent = "등록 목표 대비 진행률";
+    chartToggleBtn.textContent = "기여도 보기";
+  }
+
+  function renderToggleChart(rows) {
+    if (chartMode === "progress") {
+      renderProgressChart(rows);
+    } else {
+      renderContributionChart(rows);
+    }
   }
 
   function renderDonut(totals) {
@@ -1274,8 +1370,7 @@
     const rows = getFilteredData();
     const totals = getTotals(rows);
     renderSummary(rows, totals);
-    renderBarChart(rows);
-    renderProgressChart(rows);
+    renderToggleChart(rows);
     renderDonut(totals);
     renderTable(rows);
     updateLastUpdatedBadge();
@@ -1287,6 +1382,7 @@
   function loadSampleData() {
     studyData = [...sampleData];
     lastUploadedAt = null;
+    chartMode = "contribution";
     searchInput.value = "";
     sortFilter.value = "site_id";
     resetSiteOptions();
