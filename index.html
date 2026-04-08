@@ -165,6 +165,7 @@
 
   .title-main .est {
     color: var(--brand-accent);
+    font-weight: 800;
   }
 
   .title-fullterm {
@@ -217,23 +218,40 @@
     transform: translateY(-1px);
   }
 
-  .chart-toggle-btn {
-    padding: 8px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 800;
-    line-height: 1;
+  .chart-title-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
-  .mode-pill {
-    display: inline-block;
-    padding: 4px 10px;
-    font-size: 12px;
+  .chart-title-main {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--brand-navy-dark);
+    letter-spacing: -0.01em;
+  }
+
+  .chart-title-divider {
+    color: #9aa7b6;
     font-weight: 700;
-    border-radius: 999px;
-    background: #eef4fb;
-    color: #003876;
-    border: 1px solid #d4e2f3;
+  }
+
+  .chart-mode-tab {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #9aa7b6;
+    cursor: pointer;
+    line-height: 1.2;
+    transition: color 0.15s ease, opacity 0.15s ease;
+  }
+
+  .chart-mode-tab.active {
+    color: var(--brand-navy-dark);
+    font-weight: 800;
   }
 
   .dropzone {
@@ -376,7 +394,7 @@
 
   .filters {
     display: grid;
-    grid-template-columns: 1.3fr 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
     margin-bottom: 24px;
   }
@@ -460,6 +478,19 @@
     font-weight: 800;
     position: sticky;
     top: 0;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  th.sortable:hover {
+    background: #edf3f9;
+  }
+
+  th .sort-indicator {
+    margin-left: 6px;
+    font-size: 11px;
+    color: #94a3b8;
   }
 
   td strong {
@@ -487,13 +518,13 @@
 
   .bar-item {
     display: grid;
-    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 84px;
+    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 120px;
     gap: 14px;
     align-items: center;
   }
 
   .bar-item.progress-mode {
-    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 84px;
+    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 120px;
   }
 
   .bar-label {
@@ -561,11 +592,11 @@
   .bar-inside-label.outside {
     right: auto;
     left: calc(100% + 8px);
-    color: #355f93;
+    color: #ffffff;
   }
 
   .bar-inside-label.inactive.outside {
-    color: #8a7c67;
+    color: #ffffff;
   }
 
   .bar-value {
@@ -578,6 +609,52 @@
 
   .bar-value.inactive {
     color: #8a7c67;
+  }
+
+  .bar-value.contribution-value {
+    color: #003876;
+    font-weight: 800;
+  }
+
+  .bar-value.progress-value {
+    color: #6b7280;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0;
+  }
+
+  .bar-value.progress-value.inactive {
+    color: #8a7c67;
+  }
+
+  .bar-value.progress-value .progress-current {
+    color: #526171;
+    font-weight: 800;
+  }
+
+  .bar-value.progress-value .progress-rest {
+    opacity: 0.4;
+    font-weight: 700;
+  }
+
+  .bar-inside-label.contribution-label {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .bar-inside-label.contribution-label.outside {
+    color: #ffffff;
+  }
+
+  .bar-inside-label.progress-label {
+    color: #ffffff;
+    font-weight: 800;
+  }
+
+  .bar-inside-label.progress-label.outside {
+    color: #ffffff;
   }
 
   .bar-status-dot {
@@ -810,8 +887,12 @@
   <div class="grid2">
     <div class="card">
       <div class="section-title-row">
-        <div class="section-title" id="chartSectionTitle">기관별 등록 현황 I 등록 수 기준</div>
-        <button class="btn secondary chart-toggle-btn" id="chartToggleBtn" onclick="toggleChartMode()">진행률 기준</button>
+        <div class="section-title chart-title-inline">
+          <span class="chart-title-main">기관별 등록 현황</span>
+          <button class="chart-mode-tab active" id="contributionTab" onclick="setChartMode('contribution')">등록 수</button>
+          <span class="chart-title-divider">I</span>
+          <button class="chart-mode-tab" id="progressTab" onclick="setChartMode('progress')">진행률</button>
+        </div>
       </div>
 
       <div class="chart-row" id="toggleChart"></div>
@@ -840,15 +921,6 @@
   <div class="card">
     <div class="filters">
       <input type="text" id="searchInput" placeholder="기관명 또는 연구자명 검색">
-      <select id="siteFilter">
-        <option value="all">전체 기관</option>
-      </select>
-      <select id="sortFilter">
-        <option value="site_id">기관번호 오름차순</option>
-        <option value="enrolled">등록 수 순</option>
-        <option value="consented">스크리닝(동의 취득) 수 순</option>
-        <option value="pendingQuery">미해결 Query 순</option>
-      </select>
     </div>
 
     <div class="section-title">기관별 상세 현황</div>
@@ -856,17 +928,17 @@
       <table>
         <thead>
           <tr>
-            <th>기관번호</th>
-            <th>기관명</th>
-            <th>연구책임자</th>
-            <th class="text-right">목표</th>
-            <th class="text-right">스크리닝(동의 취득)</th>
-            <th class="text-right">등록</th>
-            <th class="text-right">진행 중</th>
-            <th class="text-right">완료</th>
-            <th class="text-right">중도탈락</th>
-            <th class="text-right">미해결 Query</th>
-            <th>최종 업데이트</th>
+            <th class="sortable" data-sort-key="site_id" data-sort-type="number">기관번호<span class="sort-indicator"></span></th>
+            <th class="sortable" data-sort-key="site" data-sort-type="string">기관명<span class="sort-indicator"></span></th>
+            <th class="sortable" data-sort-key="pi" data-sort-type="string">연구책임자<span class="sort-indicator"></span></th>
+            <th class="sortable text-right" data-sort-key="targetSortValue" data-sort-type="number">목표<span class="sort-indicator"></span></th>
+            <th class="sortable text-right" data-sort-key="consented" data-sort-type="number">스크리닝(동의 취득)<span class="sort-indicator"></span></th>
+            <th class="sortable text-right" data-sort-key="enrolled" data-sort-type="number">등록<span class="sort-indicator"></span></th>
+            <th class="sortable text-right" data-sort-key="active" data-sort-type="number">진행 중<span class="sort-indicator"></span></th>
+            <th class="sortable text-right" data-sort-key="completed" data-sort-type="number">완료<span class="sort-indicator"></span></th>
+            <th class="sortable text-right" data-sort-key="dropped" data-sort-type="number">중도탈락<span class="sort-indicator"></span></th>
+            <th class="sortable text-right" data-sort-key="pendingQuery" data-sort-type="number">미해결 Query<span class="sort-indicator"></span></th>
+            <th class="sortable" data-sort-key="lastUpdatedSortValue" data-sort-type="date">최종 업데이트<span class="sort-indicator"></span></th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -898,6 +970,7 @@
       target: 50,
       targetDisplay: "50",
       targetIsText: false,
+      targetSortValue: 50,
       consented: 40,
       enrolled: 30,
       active: 20,
@@ -907,22 +980,26 @@
       siteStatus: "active",
       siteStatusLabel: "등록 진행",
       lastUpdatedRaw: new Date("2026-04-01"),
-      lastUpdatedDisplay: "2026-04-01"
+      lastUpdatedDisplay: "2026-04-01",
+      lastUpdatedSortValue: new Date("2026-04-01").getTime()
     }
   ];
 
   let studyData = [...sampleData];
   let lastUploadedAt = null;
   let chartMode = "contribution";
+  let tableSort = {
+    key: "site_id",
+    direction: "asc",
+    type: "number"
+  };
 
   const searchInput = document.getElementById("searchInput");
-  const siteFilter = document.getElementById("siteFilter");
-  const sortFilter = document.getElementById("sortFilter");
   const tableBody = document.getElementById("tableBody");
   const summaryCards = document.getElementById("summaryCards");
   const toggleChart = document.getElementById("toggleChart");
-  const chartSectionTitle = document.getElementById("chartSectionTitle");
-  const chartToggleBtn = document.getElementById("chartToggleBtn");
+  const contributionTab = document.getElementById("contributionTab");
+  const progressTab = document.getElementById("progressTab");
   const donut = document.getElementById("donut");
   const donutTotal = document.getElementById("donutTotal");
   const legend = document.getElementById("legend");
@@ -930,6 +1007,7 @@
   const fileInput = document.getElementById("fileInput");
   const fileStatus = document.getElementById("fileStatus");
   const updateBadge = document.getElementById("updateBadge");
+  const sortableHeaders = document.querySelectorAll("th.sortable");
 
   /* =========================
      JavaScript: Utilities
@@ -941,7 +1019,6 @@
     const num = Number(cleaned);
     return isNaN(num) ? 0 : num;
   }
-
 
   function getTargetInfo(value) {
     if (value === null || value === undefined || value === "") {
@@ -963,9 +1040,24 @@
     return { value: 0, display: raw, isText: true };
   }
 
-  function formatTargetDisplay(targetValue, targetDisplay, isText) {
-    if (isText) return targetDisplay || "-";
-    return Number(targetValue || 0).toLocaleString();
+  function formatTargetForChart(targetDisplay, targetIsText) {
+    if (targetIsText) return "-";
+    return formatTargetForTable(targetDisplay);
+  }
+
+  function formatTargetForTable(targetDisplay) {
+    if (targetDisplay === null || targetDisplay === undefined || targetDisplay === "") return "0";
+    if (typeof targetDisplay === "number") return targetDisplay.toLocaleString();
+
+    const trimmed = String(targetDisplay).trim();
+    if (!trimmed) return "0";
+
+    const normalized = trimmed.replace(/,/g, "");
+    if (!isNaN(Number(normalized))) {
+      return Number(normalized).toLocaleString();
+    }
+
+    return trimmed;
   }
 
   function normalizeKey(key) {
@@ -1082,6 +1174,43 @@
     return `${Math.round(value)}%`;
   }
 
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function compareValues(a, b, type) {
+    if (type === "number" || type === "date") {
+      const numA = Number(a ?? 0);
+      const numB = Number(b ?? 0);
+      if (numA < numB) return -1;
+      if (numA > numB) return 1;
+      return 0;
+    }
+
+    const strA = String(a ?? "").toLowerCase();
+    const strB = String(b ?? "").toLowerCase();
+    return strA.localeCompare(strB, "ko");
+  }
+
+  function updateSortIndicators() {
+    sortableHeaders.forEach(th => {
+      const indicator = th.querySelector(".sort-indicator");
+      if (!indicator) return;
+
+      const key = th.dataset.sortKey;
+      if (key === tableSort.key) {
+        indicator.textContent = tableSort.direction === "asc" ? "▲" : "▼";
+      } else {
+        indicator.textContent = "";
+      }
+    });
+  }
+
   /* =========================
      JavaScript: Data Parsing
   ========================= */
@@ -1118,6 +1247,7 @@
         const formattedDate = updatedCol ? formatDateValue(row[updatedCol]) : "";
         const siteStatus = statusCol ? normalizeStatusValue(row[statusCol]) : "active";
         const targetInfo = targetCol ? getTargetInfo(row[targetCol]) : { value: 0, display: "0", isText: false };
+        const lastUpdatedTime = formattedDate ? new Date(formattedDate).getTime() : 0;
 
         return {
           site_id: siteIdCol ? safeNumber(row[siteIdCol]) : 0,
@@ -1126,6 +1256,7 @@
           target: targetInfo.value,
           targetDisplay: targetInfo.display,
           targetIsText: targetInfo.isText,
+          targetSortValue: targetInfo.value,
           consented: consentedCol ? safeNumber(row[consentedCol]) : 0,
           enrolled: enrolledCol ? safeNumber(row[enrolledCol]) : 0,
           active: activeCol ? safeNumber(row[activeCol]) : 0,
@@ -1135,7 +1266,8 @@
           siteStatus,
           siteStatusLabel: getStatusLabel(siteStatus),
           lastUpdatedRaw: formattedDate ? new Date(formattedDate) : null,
-          lastUpdatedDisplay: formattedDate || formatDateValue(new Date())
+          lastUpdatedDisplay: formattedDate || formatDateValue(new Date()),
+          lastUpdatedSortValue: lastUpdatedTime
         };
       });
 
@@ -1149,32 +1281,22 @@
   /* =========================
      JavaScript: Filters / Totals
   ========================= */
-  function resetSiteOptions() {
-    siteFilter.innerHTML = '<option value="all">전체 기관</option>';
-    studyData.forEach(item => {
-      const option = document.createElement("option");
-      option.value = item.site;
-      option.textContent = item.site;
-      siteFilter.appendChild(option);
-    });
-  }
-
   function getFilteredData() {
     const keyword = searchInput.value.trim().toLowerCase();
-    const selectedSite = siteFilter.value;
-    const sortValue = sortFilter.value;
 
     let rows = studyData.filter(row => {
-      const matchesKeyword =
+      return (
         row.site.toLowerCase().includes(keyword) ||
-        String(row.pi || "").toLowerCase().includes(keyword);
-      const matchesSite = selectedSite === "all" || row.site === selectedSite;
-      return matchesKeyword && matchesSite;
+        String(row.pi || "").toLowerCase().includes(keyword)
+      );
     });
 
     rows.sort((a, b) => {
-      if (sortValue === "site_id") return (a.site_id || 0) - (b.site_id || 0);
-      return (b[sortValue] || 0) - (a[sortValue] || 0);
+      const result = compareValues(a[tableSort.key], b[tableSort.key], tableSort.type);
+      if (result !== 0) {
+        return tableSort.direction === "asc" ? result : -result;
+      }
+      return (a.site_id || 0) - (b.site_id || 0);
     });
 
     return rows;
@@ -1215,9 +1337,14 @@
     updateBadge.textContent = `최종 업데이트: ${lastUploadedAt ? formatDateTimeValue(lastUploadedAt) : "-"}`;
   }
 
-  function toggleChartMode() {
-    chartMode = chartMode === "contribution" ? "progress" : "contribution";
+  function setChartMode(mode) {
+    chartMode = mode;
     renderAll();
+  }
+
+  function renderChartModeTabs() {
+    contributionTab.classList.toggle("active", chartMode === "contribution");
+    progressTab.classList.toggle("active", chartMode === "progress");
   }
 
   /* =========================
@@ -1247,8 +1374,6 @@
     const totals = getTotals(chartRows);
     const maxEnrolled = Math.max(...chartRows.map(row => row.enrolled || 0), 0);
 
-    chartSectionTitle.textContent = "기관별 등록 현황 I 등록 수 기준";
-
     toggleChart.innerHTML = chartRows.map(row => {
       const inactive = isStoppedStatus(row.siteStatus);
       const barWidth = maxEnrolled > 0
@@ -1266,6 +1391,7 @@
 
       const labelClasses = [
         "bar-inside-label",
+        "contribution-label",
         useOutsideLabel ? "outside" : "",
         inactive ? "inactive" : ""
       ].filter(Boolean).join(" ");
@@ -1281,18 +1407,14 @@
               <span class="${labelClasses}">${contributionLabel}</span>
             </div>
           </div>
-          <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
+          <div class="bar-value contribution-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
         </div>
       `;
     }).join("");
-
-    chartToggleBtn.textContent = "진행률 기준";
   }
 
   function renderProgressChart(rows) {
     const chartRows = getBarChartRows(rows);
-
-    chartSectionTitle.textContent = "기관별 등록 현황 I 진행률 기준";
 
     toggleChart.innerHTML = chartRows.map(row => {
       const percentValue = row.target > 0 ? (row.enrolled / row.target) * 100 : 0;
@@ -1302,6 +1424,7 @@
         : (row.enrolled > 0 ? 10 : 2);
       const inactive = isStoppedStatus(row.siteStatus);
       const useOutsideLabel = barWidth < 24;
+      const targetChartDisplay = formatTargetForChart(row.targetDisplay, row.targetIsText);
 
       const fillClasses = [
         row.enrolled === 0 ? "zero" : "",
@@ -1310,6 +1433,7 @@
 
       const labelClasses = [
         "bar-inside-label",
+        "progress-label",
         useOutsideLabel ? "outside" : "",
         inactive ? "inactive" : ""
       ].filter(Boolean).join(" ");
@@ -1325,15 +1449,17 @@
               <span class="${labelClasses}">${percentLabel}</span>
             </div>
           </div>
-          <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()} / ${row.target.toLocaleString()}</div>
+          <div class="bar-value progress-value ${inactive ? "inactive" : ""}">
+            <span class="progress-current">${row.enrolled.toLocaleString()}</span><span class="progress-rest"> I ${escapeHtml(targetChartDisplay)}</span>
+          </div>
         </div>
       `;
     }).join("");
-
-    chartToggleBtn.textContent = "등록 수 기준";
   }
 
   function renderToggleChart(rows) {
+    renderChartModeTabs();
+
     if (chartMode === "progress") {
       renderProgressChart(rows);
     } else {
@@ -1381,7 +1507,7 @@
           <td>${String(row.site_id).padStart(3, "0")}</td>
           <td><strong class="site-name ${inactive ? "inactive" : ""}">${row.site}</strong></td>
           <td>${row.pi || "-"}</td>
-          <td class="text-right">${formatTargetDisplay(row.target, row.targetDisplay, row.targetIsText)}</td>
+          <td class="text-right">${escapeHtml(formatTargetForTable(row.targetDisplay))}</td>
           <td class="text-right">${row.consented.toLocaleString()}</td>
           <td class="text-right"><strong>${row.enrolled.toLocaleString()}</strong></td>
           <td class="text-right">${row.active.toLocaleString()}</td>
@@ -1402,6 +1528,7 @@
     renderDonut(totals);
     renderTable(rows);
     updateLastUpdatedBadge();
+    updateSortIndicators();
   }
 
   /* =========================
@@ -1411,9 +1538,8 @@
     studyData = [...sampleData];
     lastUploadedAt = null;
     chartMode = "contribution";
+    tableSort = { key: "site_id", direction: "asc", type: "number" };
     searchInput.value = "";
-    sortFilter.value = "site_id";
-    resetSiteOptions();
     fileStatus.textContent = "현재: 예시 데이터 표시 중 (1개 기관)";
     renderAll();
   }
@@ -1433,8 +1559,7 @@
         studyData = parsed;
         lastUploadedAt = new Date();
         searchInput.value = "";
-        sortFilter.value = "site_id";
-        resetSiteOptions();
+        tableSort = { key: "site_id", direction: "asc", type: "number" };
         fileStatus.textContent = `현재: ${file.name} 적용 완료 (${parsed.length}개 기관)`;
         renderAll();
       } catch (error) {
@@ -1453,7 +1578,7 @@
       row.site_id,
       row.site,
       row.pi,
-      row.target,
+      row.targetDisplay,
       row.consented,
       row.enrolled,
       row.active,
@@ -1503,13 +1628,28 @@
   });
 
   searchInput.addEventListener("input", renderAll);
-  siteFilter.addEventListener("change", renderAll);
-  sortFilter.addEventListener("change", renderAll);
+
+  sortableHeaders.forEach(th => {
+    th.addEventListener("click", () => {
+      const clickedKey = th.dataset.sortKey;
+      const clickedType = th.dataset.sortType || "string";
+
+      if (tableSort.key === clickedKey) {
+        tableSort.direction = tableSort.direction === "asc" ? "desc" : "asc";
+      } else {
+        tableSort.key = clickedKey;
+        tableSort.direction = "asc";
+        tableSort.type = clickedType;
+      }
+
+      tableSort.type = clickedType;
+      renderAll();
+    });
+  });
 
   /* =========================
      JavaScript: Init
   ========================= */
-  resetSiteOptions();
   renderAll();
 </script>
 </body>
