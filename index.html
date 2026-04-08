@@ -430,23 +430,32 @@
   .chart-row {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
   }
 
   .bar-item {
     display: grid;
-    grid-template-columns: 220px 1fr 78px;
-    gap: 12px;
+    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 68px;
+    gap: 14px;
     align-items: center;
   }
 
   .bar-label {
+    min-width: 0;
     font-size: 14px;
     font-weight: 700;
-    color: #526273;
+    color: #617183;
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .bar-label-text {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .bar-label.inactive {
@@ -455,8 +464,8 @@
 
   .bar-track {
     width: 100%;
-    height: 20px;
-    background: #e6edf5;
+    height: 16px;
+    background: #e3eaf2;
     border-radius: 999px;
     overflow: hidden;
     position: relative;
@@ -472,9 +481,10 @@
     justify-content: flex-end;
     padding-right: 8px;
     color: #fff;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     white-space: nowrap;
+    transition: width 0.2s ease;
   }
 
   .bar-fill.zero {
@@ -488,9 +498,21 @@
     background: linear-gradient(90deg, #a6957c 0%, #c9b9a2 100%);
   }
 
+  .bar-value {
+    text-align: right;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+    color: #003876;
+  }
+
+  .bar-value.inactive {
+    color: #8a7c67;
+  }
+
   .bar-status-dot {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex: 0 0 auto;
   }
@@ -639,13 +661,19 @@
     }
     .bar-item {
       grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .bar-value {
+      text-align: left;
+      padding-left: 16px;
     }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="page-update-badge" id="updateBadge">최종 업데이트: 2026-04-01</div>
+  <div class="page-update-badge" id="updateBadge">최종 업데이트: -</div>
 
   <div class="header-shell">
     <div class="header">
@@ -776,9 +804,9 @@
 
   const sampleData = [
     {
-      site_id: 1,
-      site: "세브란스병원",
-      pi: "김영대",
+      site_id: 2001,
+      site: "신촌세브란스병원",
+      pi: "남효석",
       target: 50,
       consented: 40,
       enrolled: 30,
@@ -794,6 +822,7 @@
   ];
 
   let studyData = [...sampleData];
+  let lastUploadedAt = null;
 
   const searchInput = document.getElementById("searchInput");
   const siteFilter = document.getElementById("siteFilter");
@@ -897,6 +926,19 @@
     const d = String(dateObj.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   }
+
+  function formatDateTimeValue(value) {
+    if (!(value instanceof Date) || isNaN(value)) return "-";
+
+    const y = value.getFullYear();
+    const m = String(value.getMonth() + 1).padStart(2, "0");
+    const d = String(value.getDate()).padStart(2, "0");
+    const hh = String(value.getHours()).padStart(2, "0");
+    const mm = String(value.getMinutes()).padStart(2, "0");
+
+    return `${y}-${m}-${d} ${hh}:${mm}`;
+  }
+
 
   function parseExcelRows(rows) {
     if (!rows || !rows.length) {
@@ -1017,19 +1059,8 @@
     });
   }
 
-  function updateLastUpdatedBadge(rows) {
-    if (!rows || !rows.length) {
-      updateBadge.textContent = "최종 업데이트: -";
-      return;
-    }
-
-    const validDates = rows
-      .map(row => row.lastUpdatedDisplay)
-      .filter(v => v && String(v).trim() !== "")
-      .sort();
-
-    const latest = validDates.length ? validDates[validDates.length - 1] : "-";
-    updateBadge.textContent = `최종 업데이트: ${latest}`;
+  function updateLastUpdatedBadge() {
+    updateBadge.textContent = `최종 업데이트: ${lastUploadedAt ? formatDateTimeValue(lastUploadedAt) : "-"}`;
   }
 
   function renderSummary(rows, totals) {
@@ -1066,12 +1097,12 @@
         <div class="bar-item">
           <div class="bar-label ${inactive ? "inactive" : ""}">
             <span class="bar-status-dot ${row.siteStatus}"></span>
-            <span>${row.site}</span>
+            <span class="bar-label-text">${row.site}</span>
           </div>
           <div class="bar-track">
             <div class="bar-fill ${fillClasses}" style="width:${barWidth}%">${displayPercent}</div>
           </div>
-          <div style="text-align:right;font-weight:800;color:${inactive ? "#8a7c67" : "#003876"};">${row.enrolled.toLocaleString()}</div>
+          <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
         </div>
       `;
     }).join("");
@@ -1136,11 +1167,12 @@
     renderBarChart(rows);
     renderDonut(totals);
     renderTable(rows);
-    updateLastUpdatedBadge(rows);
+    updateLastUpdatedBadge();
   }
 
   function loadSampleData() {
     studyData = [...sampleData];
+    lastUploadedAt = null;
     searchInput.value = "";
     sortFilter.value = "site_id";
     resetSiteOptions();
@@ -1159,6 +1191,7 @@
         const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: true });
         const parsed = parseExcelRows(rows);
         studyData = parsed;
+        lastUploadedAt = new Date();
         searchInput.value = "";
         sortFilter.value = "site_id";
         resetSiteOptions();
