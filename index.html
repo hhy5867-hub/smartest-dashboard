@@ -225,6 +225,17 @@
     line-height: 1;
   }
 
+  .mode-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    background: #eef4fb;
+    color: #003876;
+    border: 1px solid #d4e2f3;
+  }
+
   .dropzone {
     border: 1.5px dashed #9db6d3;
     background: linear-gradient(180deg, #fbfdff 0%, #f5f9fe 100%);
@@ -341,7 +352,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
   }
 
@@ -557,22 +568,6 @@
     color: #8a7c67;
   }
 
-  .bar-percent {
-    text-align: right;
-    font-size: 12px;
-    font-weight: 800;
-    color: #355f93;
-    letter-spacing: -0.01em;
-  }
-
-  .bar-percent.inactive {
-    color: #8a7c67;
-  }
-
-  .bar-percent.zero {
-    color: #94a3b8;
-  }
-
   .bar-value {
     text-align: right;
     font-weight: 800;
@@ -742,7 +737,6 @@
       gap: 8px;
     }
 
-    .bar-percent,
     .bar-value {
       text-align: left;
       padding-left: 16px;
@@ -820,7 +814,10 @@
         <button class="btn secondary chart-toggle-btn" id="chartToggleBtn" onclick="toggleChartMode()">진행률 기준</button>
       </div>
 
-      <div class="subsection-title" id="chartSubTitle">등록 수 기준</div>
+      <div class="subsection-title">
+        <span class="mode-pill" id="chartModePill">등록 수 기준</span>
+      </div>
+
       <div class="chart-row" id="toggleChart"></div>
 
       <div class="status-note">
@@ -926,8 +923,8 @@
   const tableBody = document.getElementById("tableBody");
   const summaryCards = document.getElementById("summaryCards");
   const toggleChart = document.getElementById("toggleChart");
-  const chartSubTitle = document.getElementById("chartSubTitle");
   const chartToggleBtn = document.getElementById("chartToggleBtn");
+  const chartModePill = document.getElementById("chartModePill");
   const donut = document.getElementById("donut");
   const donutTotal = document.getElementById("donutTotal");
   const legend = document.getElementById("legend");
@@ -1260,7 +1257,7 @@
       `;
     }).join("");
 
-    chartSubTitle.textContent = "등록 수 기준";
+    chartModePill.textContent = "등록 수 기준";
     chartToggleBtn.textContent = "진행률 기준";
   }
 
@@ -1303,7 +1300,7 @@
       `;
     }).join("");
 
-    chartSubTitle.textContent = "진행률 기준";
+    chartModePill.textContent = "진행률 기준";
     chartToggleBtn.textContent = "등록 수 기준";
   }
 
