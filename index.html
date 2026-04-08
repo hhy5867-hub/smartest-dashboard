@@ -436,12 +436,12 @@
   .chart-row {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
 
   .bar-item {
     display: grid;
-    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 68px;
+    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 56px 68px;
     gap: 14px;
     align-items: center;
   }
@@ -482,26 +482,32 @@
     min-width: 2px;
     background: linear-gradient(90deg, #0b4b93 0%, #2f69ad 55%, #5d8ec7 100%);
     border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
     transition: width 0.2s ease;
   }
 
   .bar-fill.zero {
     width: 2px !important;
     background: #cfd8e3;
-    color: transparent;
-    padding-right: 0;
   }
 
   .bar-fill.inactive {
     background: linear-gradient(90deg, #a39178 0%, #b4a188 55%, #c8b8a2 100%);
+  }
+
+  .bar-percent {
+    text-align: right;
+    font-size: 12px;
+    font-weight: 800;
+    color: #355f93;
+    letter-spacing: -0.01em;
+  }
+
+  .bar-percent.inactive {
+    color: #8a7c67;
+  }
+
+  .bar-percent.zero {
+    color: #94a3b8;
   }
 
   .bar-value {
@@ -672,6 +678,7 @@
       gap: 8px;
     }
 
+    .bar-percent,
     .bar-value {
       text-align: left;
       padding-left: 16px;
@@ -1146,9 +1153,15 @@
         : (row.enrolled > 0 ? 10 : 2);
       const displayPercent = row.target > 0 ? `${percentValue}%` : "-";
       const inactive = isStoppedStatus(row.siteStatus);
+
       const fillClasses = [
         row.enrolled === 0 ? "zero" : "",
         inactive ? "inactive" : ""
+      ].filter(Boolean).join(" ");
+
+      const percentClasses = [
+        inactive ? "inactive" : "",
+        row.enrolled === 0 ? "zero" : ""
       ].filter(Boolean).join(" ");
 
       return `
@@ -1158,8 +1171,9 @@
             <span class="bar-label-text">${row.site}</span>
           </div>
           <div class="bar-track">
-            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%">${displayPercent}</div>
+            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%"></div>
           </div>
+          <div class="bar-percent ${percentClasses}">${displayPercent}</div>
           <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
         </div>
       `;
