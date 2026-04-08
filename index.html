@@ -482,7 +482,7 @@
   }
 
   .bar-item.progress-mode {
-    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 68px 68px;
+    grid-template-columns: minmax(120px, 188px) minmax(260px, 1fr) 84px;
   }
 
   .bar-label {
@@ -817,10 +817,10 @@
     <div class="card">
       <div class="section-title-row">
         <div class="section-title">기관별 등록 현황</div>
-        <button class="btn secondary chart-toggle-btn" id="chartToggleBtn" onclick="toggleChartMode()">진행률 보기</button>
+        <button class="btn secondary chart-toggle-btn" id="chartToggleBtn" onclick="toggleChartMode()">진행률 기준</button>
       </div>
 
-      <div class="subsection-title" id="chartSubTitle">등록 수 기준 기여도</div>
+      <div class="subsection-title" id="chartSubTitle">등록 수 기준</div>
       <div class="chart-row" id="toggleChart"></div>
 
       <div class="status-note">
@@ -1260,8 +1260,8 @@
       `;
     }).join("");
 
-    chartSubTitle.textContent = "등록 수 기준 기여도";
-    chartToggleBtn.textContent = "진행률 보기";
+    chartSubTitle.textContent = "등록 수 기준";
+    chartToggleBtn.textContent = "진행률 기준";
   }
 
   function renderProgressChart(rows) {
@@ -1269,21 +1269,22 @@
 
     toggleChart.innerHTML = chartRows.map(row => {
       const percentValue = row.target > 0 ? (row.enrolled / row.target) * 100 : 0;
-      const roundedPercent = row.target > 0 ? Math.round(percentValue) : 0;
+      const percentLabel = row.target > 0 ? formatPercent(percentValue) : "-";
       const barWidth = row.target > 0
-        ? Math.max(row.enrolled > 0 ? 10 : 0, Math.min(roundedPercent, 100))
+        ? Math.max(row.enrolled > 0 ? 10 : 0, Math.min(percentValue, 100))
         : (row.enrolled > 0 ? 10 : 2);
-      const displayPercent = row.target > 0 ? `${roundedPercent}%` : "-";
       const inactive = isStoppedStatus(row.siteStatus);
+      const useOutsideLabel = barWidth < 24;
 
       const fillClasses = [
         row.enrolled === 0 ? "zero" : "",
         inactive ? "inactive" : ""
       ].filter(Boolean).join(" ");
 
-      const percentClasses = [
-        inactive ? "inactive" : "",
-        row.enrolled === 0 ? "zero" : ""
+      const labelClasses = [
+        "bar-inside-label",
+        useOutsideLabel ? "outside" : "",
+        inactive ? "inactive" : ""
       ].filter(Boolean).join(" ");
 
       return `
@@ -1293,16 +1294,17 @@
             <span class="bar-label-text">${row.site}</span>
           </div>
           <div class="bar-track">
-            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%"></div>
+            <div class="bar-fill ${fillClasses}" style="width:${barWidth}%">
+              <span class="${labelClasses}">${percentLabel}</span>
+            </div>
           </div>
-          <div class="bar-percent ${percentClasses}">${displayPercent}</div>
           <div class="bar-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
         </div>
       `;
     }).join("");
 
-    chartSubTitle.textContent = "등록 목표 대비 진행률";
-    chartToggleBtn.textContent = "기여도 보기";
+    chartSubTitle.textContent = "진행률 기준";
+    chartToggleBtn.textContent = "등록 수 기준";
   }
 
   function renderToggleChart(rows) {
