@@ -548,38 +548,15 @@
   }
 
   .bar-value.contribution-value {
-    color: #6b7280;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0;
-    width: 150px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .bar-value.contribution-value .progress-current {
     color: #003876;
     font-weight: 800;
-    flex: 0 0 48px;
-    text-align: right;
-  }
-
-  .bar-value.contribution-value .progress-divider {
-    flex: 0 0 18px;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    color: #94a3b8;
-    font-weight: 700;
-  }
-
-  .bar-value.contribution-value .progress-target {
-    opacity: 0.4;
-    font-weight: 700;
-    flex: 0 0 84px;
+    justify-content: flex-start;
+    gap: 0;
+    width: 150px;
     text-align: left;
+    font-variant-numeric: tabular-nums;
   }
 
   .bar-value.inactive {
@@ -1394,11 +1371,7 @@
               ${row.enrolled > 0 ? `<span class="bar-inside-label">${contributionLabel}</span>` : ``}
             </div>
           </div>
-          <div class="bar-value contribution-value ${inactive ? "inactive" : ""}">
-            <span class="progress-current">${row.enrolled.toLocaleString()}</span>
-            <span class="progress-divider">I</span>
-            <span class="progress-target">${escapeHtml(formatTargetForChart(row.targetDisplay, row.targetIsText))}</span>
-          </div>
+          <div class="bar-value contribution-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
         </div>
       `;
     }).join("");
