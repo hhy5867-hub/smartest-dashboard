@@ -552,12 +552,27 @@
     font-weight: 800;
     display: inline-flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     gap: 0;
     width: 150px;
-    text-align: left;
-    padding-left: 16px;
+    text-align: right;
+    padding-left: 0;
     font-variant-numeric: tabular-nums;
+  }
+
+  .bar-value.contribution-value .contribution-current {
+    flex: 0 0 48px;
+    text-align: right;
+  }
+
+  .bar-value.contribution-value .contribution-divider {
+    flex: 0 0 18px;
+    visibility: hidden;
+  }
+
+  .bar-value.contribution-value .contribution-target {
+    flex: 0 0 84px;
+    visibility: hidden;
   }
 
   .bar-value.inactive {
@@ -1372,7 +1387,11 @@
               ${row.enrolled > 0 ? `<span class="bar-inside-label">${contributionLabel}</span>` : ``}
             </div>
           </div>
-          <div class="bar-value contribution-value ${inactive ? "inactive" : ""}">${row.enrolled.toLocaleString()}</div>
+          <div class="bar-value contribution-value ${inactive ? "inactive" : ""}">
+            <span class="contribution-current">${row.enrolled.toLocaleString()}</span>
+            <span class="contribution-divider">I</span>
+            <span class="contribution-target">0</span>
+          </div>
         </div>
       `;
     }).join("");
