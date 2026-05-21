@@ -795,7 +795,34 @@
       color: #ffffff;
     }
   }
+
+@media print {
+  .dropzone,
+  .top-actions,
+  .filters,
+  .note {
+    display:none !important;
+  }
+
+  .wrap{
+    max-width:none;
+    padding:0;
+  }
+
+  .card,
+  .header-shell{
+    box-shadow:none;
+    page-break-inside:avoid;
+  }
+
+  @page{
+    size:A4;
+    margin:12mm;
+  }
+}
+
 </style>
+
 </head>
 <body>
 <div class="wrap">
@@ -825,6 +852,7 @@
         <div class="top-actions">
           <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
           <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
+          <button class="btn" onclick="exportNewsletter()">뉴스레터 PDF 출력</button>
         </div>
       </div>
     </div>
@@ -1321,7 +1349,13 @@
 
   function setChartMode(mode) {
     chartMode = mode;
-    renderAll();
+    
+function exportNewsletter(){
+  window.print();
+}
+
+renderAll();
+
   }
 
   function setChartStatusFilter(status) {
