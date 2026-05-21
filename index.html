@@ -852,7 +852,7 @@
         <div class="top-actions">
           <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
           <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
-          <button class="btn" onclick="exportNewsletter()">뉴스레터 PDF 출력</button>
+          <button class="btn" type="button" onclick="exportNewsletter()">뉴스레터 PDF 출력</button>
         </div>
       </div>
     </div>
@@ -1349,13 +1349,6 @@
 
   function setChartMode(mode) {
     chartMode = mode;
-    
-function exportNewsletter(){
-  window.print();
-}
-
-renderAll();
-
   }
 
   function setChartStatusFilter(status) {
@@ -1651,6 +1644,14 @@ renderAll();
       renderAll();
     });
   });
+
+
+  function exportNewsletter() {
+    setTimeout(function() {
+      window.focus();
+      window.print();
+    }, 100);
+  }
 
   renderAll();
 </script>
