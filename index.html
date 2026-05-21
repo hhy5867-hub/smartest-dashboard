@@ -797,27 +797,41 @@
   }
 
 @media print {
+  body {
+    background: white !important;
+  }
+
   .dropzone,
   .top-actions,
   .filters,
   .note {
-    display:none !important;
+    display: none !important;
   }
 
-  .wrap{
-    max-width:none;
-    padding:0;
+  .wrap {
+    max-width: none;
+    padding: 0;
   }
 
-  .card,
-  .header-shell{
-    box-shadow:none;
-    page-break-inside:avoid;
+  .header-shell,
+  .card {
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
-  @page{
-    size:A4;
-    margin:12mm;
+  table {
+    min-width: 0 !important;
+  }
+
+  th, td {
+    font-size: 10px;
+    padding: 5px;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
   }
 }
 
@@ -852,7 +866,7 @@
         <div class="top-actions">
           <button class="btn secondary" onclick="document.getElementById('fileInput').click()">엑셀 선택</button>
           <button class="btn" onclick="downloadCSV()">CSV 다운로드</button>
-          <button class="btn" type="button" onclick="exportNewsletter()">뉴스레터 PDF 출력</button>
+          <button class="btn" type="button" id="newsletterPrintBtn">뉴스레터 PDF 출력</button>
         </div>
       </div>
     </div>
@@ -1349,6 +1363,7 @@
 
   function setChartMode(mode) {
     chartMode = mode;
+    renderAll();
   }
 
   function setChartStatusFilter(status) {
@@ -1646,11 +1661,19 @@
   });
 
 
-  function exportNewsletter() {
-    setTimeout(function() {
-      window.focus();
-      window.print();
-    }, 100);
+  const newsletterPrintBtn = document.getElementById("newsletterPrintBtn");
+
+  if (newsletterPrintBtn) {
+    newsletterPrintBtn.addEventListener("click", function() {
+      try {
+        window.focus();
+        setTimeout(function() {
+          window.print();
+        }, 200);
+      } catch (error) {
+        alert("인쇄창을 열지 못했습니다. Ctrl+P를 눌러 PDF로 저장해 주세요.");
+      }
+    });
   }
 
   renderAll();
